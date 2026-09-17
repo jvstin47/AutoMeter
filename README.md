@@ -34,15 +34,15 @@ You can download the ready-to-install Android APK directly and test it on any An
 
 <div align="center">
 
-| 1. Driver Dashboard | 2. Live Meter HUD | 3. Passenger Display |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/01_dashboard.png" width="240" alt="Dashboard" /> | <img src="docs/screenshots/02_live_meter.png" width="240" alt="Live Meter" /> | <img src="docs/screenshots/03_passenger_display.png" width="240" alt="Passenger Display" /> |
-| *"Your Meter is Ready" — Zero-Auth Instant Boot* | *Real-time fare, distance, & waiting timer* | *Ultra-high-contrast 92pt OLED display* |
-
-| 4. Dynamic UPI Payment QR | 5. Settings & Simulation Control |
+| 1. Driver Dashboard | 2. Live Meter HUD |
 |:---:|:---:|
-| <img src="docs/screenshots/04_payment_qr.png" width="240" alt="Payment QR" /> | <img src="docs/screenshots/05_settings.png" width="240" alt="Settings & Demo Mode" /> |
-| *Exact-amount dynamic NPCI QR + Itemized receipt* | *Demo simulation controls & Supabase cloud sync* |
+| <img src="docs/screenshots/01_dashboard.png" width="240" alt="Dashboard" /> | <img src="docs/screenshots/02_live_meter.png" width="240" alt="Live Meter" /> |
+| *"Your Meter is Ready" — Zero-Auth Instant Boot* | *Real-time fare, distance, & waiting timer* |
+
+| 3. Passenger Display | 4. Settings & Simulation Control |
+|:---:|:---:|
+| <img src="docs/screenshots/03_passenger_display.png" width="240" alt="Passenger Display" /> | <img src="docs/screenshots/05_settings.png" width="240" alt="Settings & Demo Mode" /> |
+| *Ultra-high-contrast 92pt OLED display* | *Demo simulation controls & Supabase cloud sync* |
 
 </div>
 
