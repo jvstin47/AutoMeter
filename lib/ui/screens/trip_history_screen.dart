@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/trip_model.dart';
 import '../../services/fare_engine.dart';
@@ -14,6 +15,7 @@ class TripHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final colors = context.meterColors;
     final trips = manager.trips;
 
     if (trips.isEmpty) {
@@ -26,26 +28,26 @@ class TripHistoryScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.meterSurface,
+                  color: colors.surface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.meterCardBorder),
+                  border: Border.all(color: colors.cardBorder),
                 ),
-                child: const Icon(Icons.history_rounded, size: 48, color: AppColors.textMuted),
+                child: Icon(Icons.history_rounded, size: 48, color: colors.textMuted),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'No Completed Trips Yet',
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: colors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Start a trip on the dashboard to calculate fares and record history.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                style: TextStyle(color: colors.textMuted, fontSize: 13),
               ),
             ],
           ),
@@ -54,7 +56,7 @@ class TripHistoryScreen extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(20),
       itemCount: trips.length,
       itemBuilder: (context, index) {
         final trip = trips[index];
@@ -79,13 +81,13 @@ class TripHistoryScreen extends StatelessWidget {
                           Icon(
                             Icons.schedule_rounded,
                             size: 14,
-                            color: isToday ? AppColors.meterAmber : AppColors.textMuted,
+                            color: isToday ? colors.meterAmber : colors.textMuted,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             '${Formatters.formatDate(trip.startTime)} • ${Formatters.formatTime(trip.startTime)}',
                             style: TextStyle(
-                              color: isToday ? AppColors.meterAmber : AppColors.textSecondary,
+                              color: isToday ? colors.meterAmber : colors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -94,8 +96,8 @@ class TripHistoryScreen extends StatelessWidget {
                       ),
                       Text(
                         Formatters.formatCurrency(trip.totalFare, symbol: manager.fareConfig.currency),
-                        style: const TextStyle(
-                          color: AppColors.meterAmber,
+                        style: TextStyle(
+                          color: colors.meterAmber,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                         ),
@@ -107,8 +109,8 @@ class TripHistoryScreen extends StatelessWidget {
                   // Distance & Duration
                   Text(
                     '${trip.distanceKm.toStringAsFixed(2)} km · ${Formatters.formatDurationHuman(trip.tripDurationSeconds)}',
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      color: colors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -121,20 +123,20 @@ class TripHistoryScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _buildPaymentBadge(trip.paymentMethod, trip.paymentStatus),
+                          _buildPaymentBadge(trip.paymentMethod, trip.paymentStatus, colors),
                           if (trip.isDemo) ...[
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.meterSurface,
+                                color: colors.surface,
                                 borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: AppColors.meterCardBorder),
+                                border: Border.all(color: colors.cardBorder),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'DEMO',
                                 style: TextStyle(
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -143,13 +145,34 @@ class TripHistoryScreen extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.textMuted,
-                        size: 20,
-                      ),
+                      Icon(Icons.chevron_right_rounded, color: colors.textMuted, size: 20),
                     ],
                   ),
+
+                  // Show Pay Now Action if Pending
+                  if (trip.paymentStatus != 'confirmed') ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: colors.meterAmber, width: 1.2),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => PaymentQrScreen(trip: trip)),
+                          );
+                        },
+                        icon: Icon(Icons.qr_code_rounded, size: 16, color: colors.meterAmber),
+                        label: Text(
+                          'COLLECT PAYMENT / VIEW QR',
+                          style: TextStyle(color: colors.meterAmber, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -159,31 +182,44 @@ class TripHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentBadge(String method, String status) {
+  Widget _buildPaymentBadge(String? method, String status, MeterThemeColors colors) {
     final isPaid = status == 'confirmed';
     final isUpi = method == 'upi';
 
+    Color bg;
+    Color fg;
+    String text;
+
+    if (isPaid) {
+      bg = isUpi ? colors.meterGreen.withOpacity(0.15) : colors.meterAmber.withOpacity(0.15);
+      fg = isUpi ? colors.meterGreen : colors.meterAmber;
+      text = isUpi ? 'PAID VIA UPI' : 'PAID CASH';
+    } else {
+      bg = colors.meterRed.withOpacity(0.15);
+      fg = colors.meterRed;
+      text = 'PAYMENT PENDING';
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: (isPaid ? AppColors.meterGreen : AppColors.meterAmber).withOpacity(0.15),
+        color: bg,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: (isPaid ? AppColors.meterGreen : AppColors.meterAmber).withOpacity(0.4),
-        ),
       ),
       child: Text(
-        '${isUpi ? 'UPI' : 'Cash'} • ${isPaid ? 'Paid' : 'Pending'}',
+        text,
         style: TextStyle(
-          color: isPaid ? AppColors.meterGreen : AppColors.meterAmber,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
+          color: fg,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
         ),
       ),
     );
   }
 
   void _showTripDetailsModal(BuildContext context, TripModel trip, TripManager manager) {
+    final colors = context.meterColors;
     final breakdown = FareBreakdown(
       baseFare: trip.baseFare,
       distanceKm: trip.distanceKm,
@@ -202,10 +238,10 @@ class TripHistoryScreen extends StatelessWidget {
       isScrollControlled: true,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: AppColors.meterBlack,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(top: BorderSide(color: AppColors.meterCardBorder, width: 1.5)),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(top: BorderSide(color: colors.cardBorder, width: 1.5)),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -218,10 +254,10 @@ class TripHistoryScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'TRIP DETAILS',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -229,8 +265,8 @@ class TripHistoryScreen extends StatelessWidget {
                       ),
                       Text(
                         Formatters.formatFullDateTime(trip.startTime),
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -249,51 +285,28 @@ class TripHistoryScreen extends StatelessWidget {
                 currency: manager.fareConfig.currency,
               ),
               const SizedBox(height: 16),
+              // Meta details
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.meterSurface,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.meterCardBorder),
+                  border: Border.all(color: colors.divider),
                 ),
                 child: Column(
                   children: [
-                    _buildRow('Ref ID', trip.paymentReference ?? trip.id.substring(0, 8).toUpperCase()),
-                    const Divider(color: AppColors.meterDivider),
-                    _buildRow('Payment Method', trip.paymentMethod.toUpperCase()),
-                    const Divider(color: AppColors.meterDivider),
-                    _buildRow('Payment Status', trip.paymentStatus.toUpperCase()),
-                    const Divider(color: AppColors.meterDivider),
-                    _buildRow('Cloud Sync', trip.isSynced ? 'Synced to Supabase' : 'Stored Locally'),
+                    _buildMetaRow('Trip ID', trip.id.substring(0, 8), colors),
+                    Divider(color: colors.divider),
+                    _buildMetaRow('Vehicle Number', manager.driverProfile.vehicleNumber, colors),
+                    Divider(color: colors.divider),
+                    _buildMetaRow('Driver', manager.driverProfile.name, colors),
+                    Divider(color: colors.divider),
+                    _buildMetaRow('Status', trip.paymentStatus.toUpperCase(), colors),
+                    Divider(color: colors.divider),
+                    _buildMetaRow('Cloud Synced', trip.isSynced ? 'Yes' : 'Pending', colors),
                   ],
                 ),
               ),
-              if (trip.paymentStatus == 'pending') ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.meterAmber,
-                      foregroundColor: Colors.black,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PaymentQrScreen(trip: trip),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.qr_code_rounded, size: 20),
-                    label: const Text(
-                      'COLLECT PAYMENT / VIEW QR',
-                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
-                    ),
-                  ),
-                ),
-              ],
               const SizedBox(height: 20),
             ],
           ),
@@ -302,14 +315,14 @@ class TripHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildMetaRow(String label, String value, MeterThemeColors colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
-          Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: colors.textMuted, fontSize: 12)),
+          Text(value, style: TextStyle(color: colors.textPrimary, fontSize: 12, fontWeight: FontWeight.bold)),
         ],
       ),
     );

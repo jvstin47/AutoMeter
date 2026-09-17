@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/trip_manager.dart';
 
@@ -10,6 +10,7 @@ class EarningsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final colors = context.meterColors;
     final trips = manager.trips;
 
     final totalEarnings = trips
@@ -37,12 +38,12 @@ class EarningsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.meterSurface,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.meterAmber.withOpacity(0.4), width: 1.5),
-              boxShadow: const [
+              border: Border.all(color: colors.meterAmber.withOpacity(0.4), width: 1.5),
+              boxShadow: [
                 BoxShadow(
-                  color: AppColors.meterAmberGlow,
+                  color: colors.meterAmberGlow,
                   blurRadius: 20,
                   spreadRadius: -4,
                 ),
@@ -51,26 +52,26 @@ class EarningsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "TODAY'S EARNINGS",
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.5,
                       ),
                     ),
-                    Icon(Icons.trending_up_rounded, color: AppColors.meterGreen, size: 20),
+                    Icon(Icons.trending_up_rounded, color: colors.meterGreen, size: 20),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   Formatters.formatCurrency(manager.todayEarnings, symbol: manager.fareConfig.currency),
-                  style: const TextStyle(
-                    color: AppColors.meterAmber,
+                  style: TextStyle(
+                    color: colors.meterAmber,
                     fontSize: 42,
                     fontWeight: FontWeight.w900,
                   ),
@@ -78,8 +79,8 @@ class EarningsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   '${manager.todayTripCount} trips completed today',
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -90,10 +91,10 @@ class EarningsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Today's Key Metrics Grid
-          const Text(
+          Text(
             "TODAY'S METER STATS",
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
@@ -108,7 +109,8 @@ class EarningsScreen extends StatelessWidget {
                   label: 'TOTAL DISTANCE',
                   value: '${manager.todayDistanceKm.toStringAsFixed(1)} km',
                   icon: Icons.route_rounded,
-                  color: AppColors.meterCyan,
+                  color: colors.meterCyan,
+                  colors: colors,
                 ),
               ),
               const SizedBox(width: 12),
@@ -117,7 +119,8 @@ class EarningsScreen extends StatelessWidget {
                   label: 'WAITING TIME',
                   value: '${manager.todayWaitingMinutes} min',
                   icon: Icons.hourglass_bottom_rounded,
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
+                  colors: colors,
                 ),
               ),
             ],
@@ -125,10 +128,10 @@ class EarningsScreen extends StatelessWidget {
           const SizedBox(height: 28),
 
           // All Time Performance & Payment Method Split
-          const Text(
+          Text(
             'HISTORICAL TOTALS',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
@@ -139,29 +142,29 @@ class EarningsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.meterCard,
+              color: colors.card,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.meterCardBorder),
+              border: Border.all(color: colors.cardBorder),
             ),
             child: Column(
               children: [
-                _buildStatRow('All-Time Revenue', Formatters.formatCurrency(totalEarnings, symbol: manager.fareConfig.currency)),
-                const Divider(color: AppColors.meterDivider, height: 24),
-                _buildStatRow('Total Trips Recorded', '${trips.length}'),
-                const Divider(color: AppColors.meterDivider, height: 24),
-                _buildStatRow('Total Distance Logged', '${totalDistance.toStringAsFixed(1)} km'),
-                const Divider(color: AppColors.meterDivider, height: 24),
-                _buildStatRow('Total Waiting Logged', '$totalWaitingMin min'),
+                _buildStatRow('All-Time Revenue', Formatters.formatCurrency(totalEarnings, symbol: manager.fareConfig.currency), colors),
+                Divider(color: colors.divider, height: 24),
+                _buildStatRow('Total Trips Recorded', '${trips.length}', colors),
+                Divider(color: colors.divider, height: 24),
+                _buildStatRow('Total Distance Logged', '${totalDistance.toStringAsFixed(1)} km', colors),
+                Divider(color: colors.divider, height: 24),
+                _buildStatRow('Total Waiting Logged', '$totalWaitingMin min', colors),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
           // Payment Split (UPI vs Cash)
-          const Text(
+          Text(
             'PAYMENT COLLECTION SPLIT',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
@@ -175,35 +178,36 @@ class EarningsScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.meterSurface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.meterGreen.withOpacity(0.4)),
+                    border: Border.all(color: colors.meterGreen.withOpacity(0.4)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.qr_code_2_rounded, size: 16, color: AppColors.meterGreen),
-                          SizedBox(width: 6),
+                          Icon(Icons.qr_code_scanner_rounded, color: colors.meterGreen, size: 18),
+                          const SizedBox(width: 8),
                           Text(
-                            'UPI QR',
-                            style: TextStyle(
-                              color: AppColors.meterGreen,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            'UPI ONLINE',
+                            style: TextStyle(color: colors.meterGreen, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
                       Text(
                         Formatters.formatCurrency(upiEarnings, symbol: manager.fareConfig.currency),
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        totalEarnings > 0 ? '${((upiEarnings / totalEarnings) * 100).toStringAsFixed(0)}% of total' : '0% of total',
+                        style: TextStyle(color: colors.textMuted, fontSize: 11),
                       ),
                     ],
                   ),
@@ -214,35 +218,36 @@ class EarningsScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.meterSurface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.meterAmber.withOpacity(0.4)),
+                    border: Border.all(color: colors.meterAmber.withOpacity(0.4)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.payments_rounded, size: 16, color: AppColors.meterAmber),
-                          SizedBox(width: 6),
+                          Icon(Icons.money_rounded, color: colors.meterAmber, size: 18),
+                          const SizedBox(width: 8),
                           Text(
                             'CASH',
-                            style: TextStyle(
-                              color: AppColors.meterAmber,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: colors.meterAmber, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
                       Text(
                         Formatters.formatCurrency(cashEarnings, symbol: manager.fareConfig.currency),
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        totalEarnings > 0 ? '${((cashEarnings / totalEarnings) * 100).toStringAsFixed(0)}% of total' : '0% of total',
+                        style: TextStyle(color: colors.textMuted, fontSize: 11),
                       ),
                     ],
                   ),
@@ -250,6 +255,7 @@ class EarningsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -260,33 +266,44 @@ class EarningsScreen extends StatelessWidget {
     required String value,
     required IconData icon,
     required Color color,
+    required MeterThemeColors colors,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.meterCard,
+        color: colors.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.meterCardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: color),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(icon, size: 18, color: color),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           Text(
             label,
-            style: const TextStyle(
-              color: AppColors.textMuted,
+            style: TextStyle(
+              color: colors.textMuted,
               fontSize: 10,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: color,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -296,23 +313,23 @@ class EarningsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
+  Widget _buildStatRow(String label, String value, MeterThemeColors colors) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          style: TextStyle(
+            color: colors.textSecondary,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 15,
+          style: TextStyle(
+            color: colors.textPrimary,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/fare_engine.dart';
 
@@ -15,12 +15,14 @@ class FareBreakdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.meterColors;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.meterSurface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.meterCardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,10 +30,10 @@ class FareBreakdownCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'FARE BREAKDOWN',
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.5,
@@ -40,13 +42,13 @@ class FareBreakdownCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.meterCard,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
+                child: Text(
                   'TARIFF V1',
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -61,6 +63,7 @@ class FareBreakdownCard extends StatelessWidget {
             label: 'Base Minimum Fare',
             detail: 'Initial charge',
             amount: breakdown.baseFare,
+            colors: colors,
           ),
           const SizedBox(height: 12),
 
@@ -71,6 +74,7 @@ class FareBreakdownCard extends StatelessWidget {
                 ? '${breakdown.chargeableDistanceKm.toStringAsFixed(2)} km (above base) × ${Formatters.formatCurrency(breakdown.perKmRate, symbol: currency)}/km'
                 : '${breakdown.distanceKm.toStringAsFixed(2)} km × ${Formatters.formatCurrency(breakdown.perKmRate, symbol: currency)}/km',
             amount: breakdown.distanceFare,
+            colors: colors,
           ),
           const SizedBox(height: 12),
 
@@ -79,11 +83,12 @@ class FareBreakdownCard extends StatelessWidget {
             label: 'Waiting Charge',
             detail: '${breakdown.waitingMinutes} min (${Formatters.formatDuration(breakdown.waitingDurationSeconds)}) × ${Formatters.formatCurrency(breakdown.waitingRatePerMin, symbol: currency)}/min',
             amount: breakdown.waitingFare,
+            colors: colors,
           ),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Divider(color: AppColors.meterCardBorder, thickness: 1.5),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Divider(color: colors.cardBorder, thickness: 1.5),
           ),
 
           // Total Fare Row
@@ -92,10 +97,10 @@ class FareBreakdownCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
+              Text(
                 'TOTAL FARE',
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: colors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.0,
@@ -103,8 +108,8 @@ class FareBreakdownCard extends StatelessWidget {
               ),
               Text(
                 Formatters.formatCurrency(breakdown.totalFare, symbol: currency),
-                style: const TextStyle(
-                  color: AppColors.meterAmber,
+                style: TextStyle(
+                  color: colors.meterAmber,
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                 ),
@@ -120,6 +125,7 @@ class FareBreakdownCard extends StatelessWidget {
     required String label,
     required String detail,
     required double amount,
+    required MeterThemeColors colors,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,8 +135,8 @@ class FareBreakdownCard extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -138,8 +144,8 @@ class FareBreakdownCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               detail,
-              style: const TextStyle(
-                color: AppColors.textMuted,
+              style: TextStyle(
+                color: colors.textMuted,
                 fontSize: 12,
               ),
             ),
@@ -147,8 +153,8 @@ class FareBreakdownCard extends StatelessWidget {
         ),
         Text(
           Formatters.formatCurrency(amount, symbol: currency),
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),

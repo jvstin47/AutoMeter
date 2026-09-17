@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../services/demo_simulation_service.dart';
 import '../../services/trip_manager.dart';
 
@@ -11,15 +11,17 @@ class DemoControlsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
     final demoService = manager.demoService;
+    final colors = context.meterColors;
+
     final isStoppedAtSignal = demoService.state == DemoVehicleState.waitingAtSignal;
     final speedMultiplier = demoService.speedMultiplier;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.meterSurface,
+        color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border.all(color: AppColors.meterAmber.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: colors.meterAmber.withOpacity(0.4), width: 1.5),
         boxShadow: const [
           BoxShadow(
             color: Colors.black87,
@@ -41,16 +43,16 @@ class DemoControlsSheet extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.meterAmber.withOpacity(0.2),
+                      color: colors.meterAmber.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.tune_rounded, color: AppColors.meterAmber, size: 20),
+                    child: Icon(Icons.tune_rounded, color: colors.meterAmber, size: 20),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     'JURY DEMO CONTROLS',
                     style: TextStyle(
-                      color: AppColors.meterAmber,
+                      color: colors.meterAmber,
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.2,
@@ -59,27 +61,23 @@ class DemoControlsSheet extends StatelessWidget {
                 ],
               ),
               IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.close_rounded, color: colors.textSecondary),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Use these controls to demonstrate distance accumulation and waiting-time tariff increases indoors to the competition jury.',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-              height: 1.4,
-            ),
+          const SizedBox(height: 8),
+          Text(
+            'Use these rapid controls during presentations to simulate realistic city conditions without driving:',
+            style: TextStyle(fontSize: 12, color: colors.textSecondary, height: 1.3),
           ),
           const SizedBox(height: 20),
 
-          // 1. Vehicle Movement Toggle
-          const Text(
-            'SIMULATE TRAFFIC / SIGNAL',
+          // 1. Traffic Signal / Waiting Time Simulation Toggle
+          Text(
+            'SIGNAL STOP / WAITING CHARGE ACCUMULATION',
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: colors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.0,
@@ -90,78 +88,76 @@ class DemoControlsSheet extends StatelessWidget {
             onTap: () {
               manager.toggleDemoTrafficStop();
             },
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isStoppedAtSignal
-                    ? AppColors.meterRed.withOpacity(0.15)
-                    : AppColors.meterGreen.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
+                    ? colors.meterRed.withOpacity(0.15)
+                    : colors.meterGreen.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isStoppedAtSignal ? AppColors.meterRed : AppColors.meterGreen,
-                  width: 1.5,
+                  color: isStoppedAtSignal ? colors.meterRed : colors.meterGreen,
+                  width: 1.8,
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    isStoppedAtSignal ? Icons.traffic_rounded : Icons.directions_car_rounded,
-                    color: isStoppedAtSignal ? AppColors.meterRed : AppColors.meterGreen,
-                    size: 24,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isStoppedAtSignal ? colors.meterRed : colors.meterGreen,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isStoppedAtSignal ? Icons.traffic_rounded : Icons.directions_bike_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isStoppedAtSignal ? 'Vehicle Stopped at Signal' : 'Vehicle Driving (~30 km/h)',
+                          isStoppedAtSignal ? 'AUTO STOPPED AT TRAFFIC SIGNAL' : 'AUTO MOVING ON ROAD',
                           style: TextStyle(
-                            color: isStoppedAtSignal ? AppColors.meterRed : AppColors.meterGreen,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            color: isStoppedAtSignal ? colors.meterRed : colors.meterGreen,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           isStoppedAtSignal
-                              ? 'Waiting timer is actively ticking fare'
-                              : 'Distance is actively ticking fare',
+                            ? 'Speed drops to 0 km/h • Waiting fee accumulating'
+                            : 'Vehicle moving (~24 km/h) • Distance accumulating',
                           style: TextStyle(
-                            color: AppColors.textSecondary.withOpacity(0.8),
-                            fontSize: 12,
+                            color: colors.textSecondary.withOpacity(0.8),
+                            fontSize: 11,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isStoppedAtSignal ? AppColors.meterRed : AppColors.meterGreen,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      isStoppedAtSignal ? 'RESUME' : 'STOP',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
+                  Icon(
+                    isStoppedAtSignal ? Icons.pause_circle_filled_rounded : Icons.play_circle_filled_rounded,
+                    color: isStoppedAtSignal ? colors.meterRed : colors.meterGreen,
+                    size: 28,
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
 
           // 2. Speed Warp Multiplier
-          const Text(
+          Text(
             'DEMO TIME ACCELERATION (WARP)',
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: colors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.0,
@@ -176,10 +172,10 @@ class DemoControlsSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: isSelected ? AppColors.meterAmber : AppColors.meterCard,
-                      foregroundColor: isSelected ? Colors.black : AppColors.textPrimary,
+                      backgroundColor: isSelected ? colors.meterAmber : colors.card,
+                      foregroundColor: isSelected ? Colors.black : colors.textPrimary,
                       side: BorderSide(
-                        color: isSelected ? AppColors.meterAmber : AppColors.meterCardBorder,
+                        color: isSelected ? colors.meterAmber : colors.cardBorder,
                         width: isSelected ? 1.5 : 1.0,
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),

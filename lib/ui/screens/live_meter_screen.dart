@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../services/trip_manager.dart';
 import '../widgets/demo_controls_sheet.dart';
 import '../widgets/digital_meter_display.dart';
@@ -40,6 +41,7 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final colors = context.meterColors;
 
     return PopScope(
       canPop: false, // Prevent accidental back button dismissal of active trip
@@ -56,8 +58,8 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.meterGreen,
+                decoration: BoxDecoration(
+                  color: colors.meterGreen,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -75,14 +77,14 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.meterAmber.withOpacity(0.2),
+                    color: colors.meterAmber.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppColors.meterAmber, width: 0.8),
+                    border: Border.all(color: colors.meterAmber, width: 0.8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'DEMO',
                     style: TextStyle(
-                      color: AppColors.meterAmber,
+                      color: colors.meterAmber,
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                     ),
@@ -93,7 +95,7 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
           actions: [
             // Passenger Mode Shortcut
             IconButton(
-              icon: const Icon(Icons.tv_rounded, color: AppColors.meterCyan),
+              icon: Icon(Icons.tv_rounded, color: colors.meterCyan),
               tooltip: 'Passenger Display Mode',
               onPressed: () {
                 Navigator.push(
@@ -105,13 +107,13 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
             // Jury Demo Sheet Trigger
             if (manager.isDemoMode)
               IconButton(
-                icon: const Icon(Icons.tune_rounded, color: AppColors.meterAmber),
+                icon: Icon(Icons.tune_rounded, color: colors.meterAmber),
                 tooltip: 'Jury Demo Controls',
                 onPressed: () => _openDemoControls(context),
               ),
             // Minimize to Dashboard
             IconButton(
-              icon: const Icon(Icons.dashboard_customize_outlined, color: AppColors.textSecondary),
+              icon: Icon(Icons.dashboard_customize_outlined, color: colors.textSecondary),
               tooltip: 'Dashboard View',
               onPressed: () => Navigator.pop(context),
             ),
@@ -131,18 +133,18 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: AppColors.meterAmber.withOpacity(0.15),
+                            color: colors.meterAmber.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.meterAmber.withOpacity(0.5)),
+                            border: Border.all(color: colors.meterAmber.withOpacity(0.5)),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.satellite_alt_rounded, size: 16, color: AppColors.meterAmber),
-                              SizedBox(width: 8),
+                              Icon(Icons.satellite_alt_rounded, size: 16, color: colors.meterAmber),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'GPS signal weak — auto noise-filter active',
-                                  style: TextStyle(color: AppColors.meterAmber, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: colors.meterAmber, fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -165,9 +167,9 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                       // Optional Destination & ETA Card (Section 13 Secondary Feature)
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.meterCard,
+                          color: colors.card,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.meterDivider),
+                          border: Border.all(color: colors.divider),
                         ),
                         child: Column(
                           children: [
@@ -179,50 +181,60 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                               },
                               borderRadius: BorderRadius.circular(14),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.navigation_rounded, size: 16, color: AppColors.meterCyan),
-                                    const SizedBox(width: 10),
+                                    Icon(Icons.navigation_rounded, color: colors.meterCyan, size: 20),
+                                    const SizedBox(width: 12),
                                     Expanded(
-                                      child: Text(
-                                        _showDestination ? 'Destination & Route' : 'Destination: ${_destinationController.text}',
-                                        style: const TextStyle(
-                                          color: AppColors.textPrimary,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            _showDestination ? 'Trip Destination' : 'Optional Passenger Destination & ETA',
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          if (!_showDestination)
+                                            Text(
+                                              'Tap to enter destination for passenger fare & ETA visibility',
+                                              style: TextStyle(color: colors.textMuted, fontSize: 11),
+                                            ),
+                                        ],
                                       ),
                                     ),
                                     Icon(
-                                      _showDestination ? Icons.expand_less : Icons.expand_more,
-                                      color: AppColors.textMuted,
+                                      _showDestination ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                      color: colors.textSecondary,
                                     ),
                                   ],
                                 ),
                               ),
                             ),
                             if (_showDestination) ...[
-                              const Divider(height: 1, color: AppColors.meterDivider),
                               Padding(
-                                padding: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     TextField(
                                       controller: _destinationController,
-                                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                                      style: TextStyle(color: colors.textPrimary, fontSize: 13),
                                       decoration: InputDecoration(
-                                        hintText: 'Enter destination...',
-                                        hintStyle: const TextStyle(color: AppColors.textMuted),
-                                        prefixIcon: const Icon(Icons.place_rounded, color: AppColors.meterAmber, size: 18),
+                                        hintText: 'Enter drop destination',
+                                        prefixIcon: Icon(Icons.location_on_rounded, color: colors.meterCyan, size: 18),
                                         filled: true,
-                                        fillColor: AppColors.meterSurface,
+                                        fillColor: colors.surface,
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(10),
-                                          borderSide: const BorderSide(color: AppColors.meterCardBorder),
+                                          borderSide: BorderSide(color: colors.cardBorder),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                          borderSide: BorderSide(color: colors.cardBorder),
                                         ),
                                       ),
                                       onChanged: (val) {
@@ -234,12 +246,12 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                                     const SizedBox(height: 10),
                                     Row(
                                       children: [
-                                        const Icon(Icons.access_time_rounded, size: 14, color: AppColors.meterGreen),
+                                        Icon(Icons.access_time_rounded, size: 14, color: colors.meterGreen),
                                         const SizedBox(width: 6),
                                         Text(
                                           'Est. Arrival: $_estimatedEta',
-                                          style: const TextStyle(
-                                            color: AppColors.meterGreen,
+                                          style: TextStyle(
+                                            color: colors.meterGreen,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -267,8 +279,8 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                           children: [
                             Text(
                               _showBreakdown ? 'Hide Fare Breakdown' : 'View Live Fare Breakdown',
-                              style: const TextStyle(
-                                color: AppColors.meterAmber,
+                              style: TextStyle(
+                                color: colors.meterAmber,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -276,7 +288,7 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                             const SizedBox(width: 4),
                             Icon(
                               _showBreakdown ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                              color: AppColors.meterAmber,
+                              color: colors.meterAmber,
                               size: 18,
                             ),
                           ],
@@ -298,18 +310,18 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
               // BOTTOM ACTION BAR: Large STOP TRIP Button
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: const BoxDecoration(
-                  color: AppColors.meterSurface,
-                  border: Border(top: BorderSide(color: AppColors.meterCardBorder)),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(top: BorderSide(color: colors.cardBorder)),
                 ),
                 child: SizedBox(
                   height: 64,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.meterRed,
+                      backgroundColor: colors.meterRed,
                       foregroundColor: Colors.white,
                       elevation: 4,
-                      shadowColor: AppColors.meterRed.withOpacity(0.4),
+                      shadowColor: colors.meterRed.withOpacity(0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

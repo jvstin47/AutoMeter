@@ -9,6 +9,7 @@ class StorageService {
   static const String _keyProfile = 'smart_meter_driver_profile';
   static const String _keyConfig = 'smart_meter_fare_config';
   static const String _keyDemoMode = 'smart_meter_demo_mode_enabled';
+  static const String _keyThemeMode = 'smart_meter_theme_mode';
   static const String _keyActiveTrip = 'smart_meter_active_trip_state';
 
   final SharedPreferences _prefs;
@@ -57,6 +58,15 @@ class StorageService {
 
   Future<void> setDemoMode(bool enabled) async {
     await _prefs.setBool(_keyDemoMode, enabled);
+  }
+
+  // Theme Mode
+  String getThemeMode() {
+    return _prefs.getString(_keyThemeMode) ?? 'amoled'; // Default to AMOLED Dark Mode
+  }
+
+  Future<void> saveThemeMode(String mode) async {
+    await _prefs.setString(_keyThemeMode, mode);
   }
 
   // Trips CRUD

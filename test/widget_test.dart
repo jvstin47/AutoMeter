@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_fare_meter/main.dart';
 import 'package:smart_fare_meter/services/storage_service.dart';
+import 'package:smart_fare_meter/services/theme_provider.dart';
 import 'package:smart_fare_meter/services/trip_manager.dart';
 
 void main() {
@@ -13,6 +14,9 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(
+            create: (_) => ThemeProvider(storageService),
+          ),
           ChangeNotifierProvider(
             create: (_) => TripManager(storageService),
           ),

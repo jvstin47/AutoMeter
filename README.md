@@ -6,9 +6,9 @@
 ### Next-Gen Smart Fare Meter with Dynamic UPI Payment for Auto-Rickshaws
 
 [![Latest Release](https://img.shields.io/github/v/release/jvstin47/AutoMeter?style=for-the-badge&color=FFB300&logo=github)](https://github.com/jvstin47/AutoMeter/releases/latest)
-[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.0-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.0.apk)
+[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.1-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.1.apk)
 [![Flutter](https://img.shields.io/badge/Flutter-3.29.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/jvstin47/AutoMeter/actions)
+[![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/jvstin47/AutoMeter/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 *An Android-first digital proof-of-concept and firmware testbed for India's 3-wheeler auto-rickshaw ecosystem — combining real-time GPS telemetry, zero-auth driver workflow, passenger OLED HUD, and dynamic NPCI UPI QR code generation.*
@@ -23,7 +23,7 @@ You can download the ready-to-install Android APK directly and test it on any An
 
 | Asset | Version | Direct Download Link | Description |
 | :--- | :---: | :--- | :--- |
-| 📦 **AutoMeter APK** | `v1.0.0` | [**Download AutoMeter-v1.0.0.apk**](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.0.apk) | Standalone release build for physical testing |
+| 📦 **AutoMeter APK** | `v1.0.1` | [**Download AutoMeter-v1.0.1.apk**](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.1.apk) | Standalone release build with Comprehensive Automotive Dark Mode |
 | 🏷️ **All Releases** | Any | [**Browse All Versions**](https://github.com/jvstin47/AutoMeter/releases) | Incremented version history (`AutoMeter-vX.Y.Z.apk`) |
 
 > 💡 **Installation Tip**: If downloading via phone browser, tap the downloaded `.apk` and allow *"Install from unknown sources"* if prompted by Android.
@@ -79,13 +79,21 @@ You can download the ready-to-install Android APK directly and test it on any An
 * 92pt high-contrast digital amber typography against pure OLED black (`#000000`).
 * Safe exit handling (`PopScope`) ensures passenger interactions cannot inadvertently cancel or end an active ride.
 
-### 5. 🎮 Interactive Jury Demo Simulation Mode
+### 5. 🌓 Multi-Tier Automotive Display Themes
+* **Pure OLED Pitch Black (`#000000`)**: Designed for night driving — zero cabin glare, completely unlit OLED pixels, maximum battery longevity on hardware without external chargers.
+* **Midnight Slate (`#0A0C10`)**: Matte industrial dark charcoal with subtle card elevation for modern hardware screens.
+* **Sunlight Day Mode (`#F4F6F9`)**: Ultra-high-contrast daylight UI with deep ink typography (`#0A0E1A`), engineered specifically for readability under direct windshield sunlight.
+* **System Automatic Sync**: Seamlessly transitions according to Android OS sunrise/sunset schedule.
+* **Instant Toggle & Persistence**: One-tap quick toggle on the dashboard AppBar and visual radio selector in Settings with persistent disk storage surviving app and vehicle restarts.
+* **Optical Scanner Safety**: The dynamic UPI QR code maintains a high-contrast white bounding box across all dark modes to ensure instant camera scanning by passenger banking apps in dimly lit cabins.
+
+### 6. 🎮 Interactive Jury Demo Simulation Mode
 * Perfect for hackathon presentations, indoor reviews, and offline evaluation without needing a moving vehicle.
 * Configurable speed warp multipliers: **$1\times, 3\times, 5\times, 10\times$**.
 * Interactive **"Simulate Traffic Stop / Signal Halt"** button to showcase real-time waiting fee accumulation in front of an audience.
 * Dedicated **"Reset Demo (Clean State)"** button in Settings.
 
-### 6. 🛡️ Crash-Proof State Machine & Offline Cloud Sync
+### 7. 🛡️ Crash-Proof State Machine & Offline Cloud Sync
 * **Persistent Recovery**: Every location update and fare change continuously writes to persistent offline storage (`SharedPreferences`).
 * If the app is killed, crashes, or the phone restarts mid-ride, reopening the app instantly displays a **"Recover Active Trip"** banner with uninterrupted trip metrics.
 * **Offline-First Cloud Sync**: Automatically records completed trips locally. When network is available, syncs queued trips with **Supabase PostgreSQL** via `supabase_schema.sql`.

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'core/theme/meter_theme.dart';
 import 'services/storage_service.dart';
 import 'services/supabase_service.dart';
+import 'services/theme_provider.dart';
 import 'services/trip_manager.dart';
 import 'ui/screens/dashboard_screen.dart';
 
@@ -16,21 +16,10 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set system overlay styling for dark industrial theme
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF0A0C10),
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
-
   // Initialize offline-first storage
   final storageService = await StorageService.init();
 
   // Initialize Supabase if environment/config exists (graceful offline fallback)
-  // For production/demo, replace with project specific credentials if available
   const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
   const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
   if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
@@ -40,6 +29,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(storageService),
+        ),
         ChangeNotifierProvider(
           create: (_) => TripManager(storageService),
         ),
@@ -54,10 +46,14 @@ class SmartFareMeterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       title: 'AutoMeter',
       debugShowCheckedModeBanner: false,
-      theme: MeterTheme.darkTheme,
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
+      themeMode: themeProvider.themeMode,
       home: const DashboardScreen(),
     );
   }

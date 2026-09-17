@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/payment_service.dart';
 
@@ -23,6 +23,7 @@ class UpiQrCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.meterColors;
     final upiUri = PaymentService.generateUpiUri(
       upiId: upiId,
       payeeName: payeeName,
@@ -35,9 +36,9 @@ class UpiQrCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.meterSurface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.meterCardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -48,19 +49,19 @@ class UpiQrCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.meterGreen.withOpacity(0.15),
+                  color: colors.meterGreen.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.meterGreen.withOpacity(0.4)),
+                  border: Border.all(color: colors.meterGreen.withOpacity(0.4)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.qr_code_2_rounded, size: 14, color: AppColors.meterGreen),
-                    SizedBox(width: 6),
+                    Icon(Icons.qr_code_2_rounded, size: 14, color: colors.meterGreen),
+                    const SizedBox(width: 6),
                     Text(
                       'DYNAMIC UPI QR',
                       style: TextStyle(
-                        color: AppColors.meterGreen,
+                        color: colors.meterGreen,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.0,
@@ -107,17 +108,17 @@ class UpiQrCard extends StatelessWidget {
           // Amount to Pay
           Text(
             Formatters.formatCurrency(amount, symbol: currency),
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 32,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'SCAN WITH ANY UPI APP',
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: colors.textMuted,
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.5,
@@ -129,13 +130,13 @@ class UpiQrCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildAppTag('GPay'),
+              _buildAppTag('GPay', colors),
               const SizedBox(width: 8),
-              _buildAppTag('PhonePe'),
+              _buildAppTag('PhonePe', colors),
               const SizedBox(width: 8),
-              _buildAppTag('Paytm'),
+              _buildAppTag('Paytm', colors),
               const SizedBox(width: 8),
-              _buildAppTag('BHIM'),
+              _buildAppTag('BHIM', colors),
             ],
           ),
           const SizedBox(height: 16),
@@ -144,9 +145,9 @@ class UpiQrCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.meterCard,
+              color: colors.card,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.meterDivider),
+              border: Border.all(color: colors.divider),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,8 +158,8 @@ class UpiQrCard extends StatelessWidget {
                     children: [
                       Text(
                         'Payee: $payeeName',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -166,8 +167,8 @@ class UpiQrCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         'UPI ID: $upiId',
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
+                        style: TextStyle(
+                          color: colors.textMuted,
                           fontSize: 12,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -177,14 +178,14 @@ class UpiQrCard extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: 'Copy UPI String',
-                  icon: const Icon(Icons.copy_rounded, size: 18, color: AppColors.meterAmber),
+                  icon: Icon(Icons.copy_rounded, size: 18, color: colors.meterAmber),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: upiUri));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('UPI Intent URI copied to clipboard'),
-                        duration: Duration(seconds: 2),
-                        backgroundColor: AppColors.meterSurface,
+                      SnackBar(
+                        content: const Text('UPI Intent URI copied to clipboard'),
+                        duration: const Duration(seconds: 2),
+                        backgroundColor: colors.surface,
                       ),
                     );
                   },
@@ -200,17 +201,17 @@ class UpiQrCard extends StatelessWidget {
               final launched = await PaymentService.launchUpiApp(upiUri);
               if (!launched && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('No external UPI app found on this test device. Scan QR with second phone!'),
-                    backgroundColor: AppColors.meterSurface,
+                  SnackBar(
+                    content: const Text('No external UPI app found on this test device. Scan QR with second phone!'),
+                    backgroundColor: colors.surface,
                   ),
                 );
               }
             },
-            icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.meterAmber),
-            label: const Text(
+            icon: Icon(Icons.open_in_new_rounded, size: 16, color: colors.meterAmber),
+            label: Text(
               'Open UPI App on Device',
-              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 13, color: colors.textPrimary),
             ),
           ),
         ],
@@ -218,17 +219,17 @@ class UpiQrCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAppTag(String name) {
+  Widget _buildAppTag(String name, MeterThemeColors colors) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.meterCardBorder.withOpacity(0.5),
+        color: colors.cardBorder.withOpacity(0.5),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         name,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
+        style: TextStyle(
+          color: colors.textSecondary,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../services/theme_provider.dart';
 import '../../services/trip_manager.dart';
 import 'earnings_screen.dart';
 import 'live_meter_screen.dart';
@@ -23,6 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final colors = context.meterColors;
 
     // If trip is currently active and user is on dashboard, show active banner or button to return
     final isTripActive = manager.state == TripState.active;
@@ -132,6 +135,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
+          Consumer<ThemeProvider>(
+            builder: (context, tp, _) => IconButton(
+              icon: Icon(tp.currentMode.icon, color: colors.meterAmber),
+              tooltip: 'Switch Theme (${tp.currentMode.label})',
+              onPressed: () => tp.cycleTheme(),
+            ),
+          ),
         ],
       ),
       body: pages[_currentIndex],
@@ -142,27 +152,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _currentIndex = idx;
           });
         },
-        backgroundColor: AppColors.meterSurface,
-        indicatorColor: AppColors.meterAmber.withOpacity(0.25),
-        destinations: const [
+        backgroundColor: colors.surface,
+        indicatorColor: colors.meterAmber.withOpacity(0.25),
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.speed_rounded),
-            selectedIcon: Icon(Icons.speed_rounded, color: AppColors.meterAmber),
+            icon: const Icon(Icons.speed_rounded),
+            selectedIcon: Icon(Icons.speed_rounded, color: colors.meterAmber),
             label: 'Meter',
           ),
           NavigationDestination(
-            icon: Icon(Icons.history_rounded),
-            selectedIcon: Icon(Icons.history_rounded, color: AppColors.meterAmber),
+            icon: const Icon(Icons.history_rounded),
+            selectedIcon: Icon(Icons.history_rounded, color: colors.meterAmber),
             label: 'Trips',
           ),
           NavigationDestination(
-            icon: Icon(Icons.currency_rupee_rounded),
-            selectedIcon: Icon(Icons.currency_rupee_rounded, color: AppColors.meterAmber),
+            icon: const Icon(Icons.currency_rupee_rounded),
+            selectedIcon: Icon(Icons.currency_rupee_rounded, color: colors.meterAmber),
             label: 'Earnings',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_rounded),
-            selectedIcon: Icon(Icons.settings_rounded, color: AppColors.meterAmber),
+            icon: const Icon(Icons.settings_rounded),
+            selectedIcon: Icon(Icons.settings_rounded, color: colors.meterAmber),
             label: 'Settings',
           ),
         ],
@@ -172,6 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildDashboardContent(BuildContext context, TripManager manager, bool isTripActive) {
     final now = DateTime.now();
+    final colors = context.meterColors;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -183,11 +194,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isTripActive
-                  ? AppColors.meterGreen.withOpacity(0.12)
-                  : AppColors.meterCard,
+                  ? colors.meterGreen.withOpacity(0.12)
+                  : colors.card,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isTripActive ? AppColors.meterGreen : AppColors.meterCardBorder,
+                color: isTripActive ? colors.meterGreen : colors.cardBorder,
               ),
             ),
             child: Row(
@@ -196,7 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: isTripActive ? AppColors.meterGreen : AppColors.meterAmber,
+                    color: isTripActive ? colors.meterGreen : colors.meterAmber,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -205,7 +216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Text(
                     isTripActive ? 'TRIP IN PROGRESS' : 'YOUR METER IS READY',
                     style: TextStyle(
-                      color: isTripActive ? AppColors.meterGreen : AppColors.textPrimary,
+                      color: isTripActive ? colors.meterGreen : colors.textPrimary,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.2,
                       fontSize: 13,
@@ -214,8 +225,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 Text(
                   Formatters.formatDate(now),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
+                  style: TextStyle(
+                    color: colors.textMuted,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -257,19 +268,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.meterSurface,
+                color: colors.card,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.meterGreen, width: 1.5),
+                border: Border.all(color: colors.meterGreen, width: 1.5),
               ),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'CURRENT LIVE FARE',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -458,9 +469,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.meterCard,
+              color: colors.card,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.meterCardBorder),
+              border: Border.all(color: colors.cardBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,10 +479,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'TARIFF CONFIG',
                       style: TextStyle(
-                        color: AppColors.textMuted,
+                        color: colors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
@@ -480,8 +491,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Flexible(
                       child: Text(
                         'Driver: ${manager.driverProfile.name}',
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: colors.textSecondary,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -537,12 +548,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required IconData icon,
     required Color color,
   }) {
+    final colors = context.meterColors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.meterSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.meterCardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,8 +573,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.textMuted,
+            style: TextStyle(
+              color: colors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -583,23 +595,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTariffPill(String label, String value) {
+    final colors = context.meterColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.meterSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.meterDivider),
+        border: Border.all(color: colors.divider),
       ),
       child: Column(
         children: [
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
+            style: TextStyle(color: colors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ],
       ),

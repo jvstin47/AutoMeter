@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/trip_model.dart';
 import '../../services/fare_engine.dart';
@@ -24,6 +25,8 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final colors = context.meterColors;
+
     final breakdown = FareBreakdown(
       baseFare: widget.trip.baseFare,
       distanceKm: widget.trip.distanceKm,
@@ -69,18 +72,18 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.meterSurface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.meterCardBorder),
+                    border: Border.all(color: colors.cardBorder),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildMetricItem('DISTANCE', '${widget.trip.distanceKm.toStringAsFixed(2)} km'),
-                      _buildDivider(),
-                      _buildMetricItem('WAITING', Formatters.formatDuration(widget.trip.waitingDurationSeconds)),
-                      _buildDivider(),
-                      _buildMetricItem('DURATION', Formatters.formatDuration(widget.trip.tripDurationSeconds)),
+                      _buildMetricItem('DISTANCE', '${widget.trip.distanceKm.toStringAsFixed(2)} km', colors),
+                      _buildDivider(colors),
+                      _buildMetricItem('WAITING', Formatters.formatDuration(widget.trip.waitingDurationSeconds), colors),
+                      _buildDivider(colors),
+                      _buildMetricItem('DURATION', Formatters.formatDuration(widget.trip.tripDurationSeconds), colors),
                     ],
                   ),
                 ),
@@ -107,18 +110,18 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.meterCard,
+                    color: colors.card,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.meterCardBorder),
+                    border: Border.all(color: colors.cardBorder),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.info_outline_rounded, size: 16, color: AppColors.meterAmber),
-                      SizedBox(width: 8),
+                      Icon(Icons.info_outline_rounded, size: 16, color: colors.meterAmber),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Prototype flow: QR generates exact amount intent. Driver verifies and confirms payment below before completing.',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.3),
+                          style: TextStyle(color: colors.textMuted, fontSize: 11, height: 1.3),
                         ),
                       ),
                     ],
@@ -133,14 +136,14 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
                     height: 56,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.meterGreen,
+                        backgroundColor: colors.meterGreen,
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       onPressed: () => _onConfirmPayment(manager, 'upi', 'UPI Payment Confirmed'),
-                      icon: const Icon(Icons.check_circle_rounded, size: 22),
+                      icon: const Icon(Icons.qr_code_scanner_rounded, size: 22),
                       label: const Text(
                         'MARK AS PAID (UPI)',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.8),
@@ -149,45 +152,45 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // 2. Cash Payment Option
+                  // 2. Paid via Cash Alternative
                   SizedBox(
-                    height: 52,
+                    height: 50,
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.meterAmber, width: 1.5),
+                        side: BorderSide(color: colors.cardBorder, width: 1.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: () => _onConfirmPayment(manager, 'cash', 'Cash Payment Received'),
-                      icon: const Icon(Icons.payments_rounded, color: AppColors.meterAmber, size: 20),
-                      label: const Text(
-                        'PAID VIA CASH',
+                      onPressed: () => _onConfirmPayment(manager, 'cash', 'Cash Payment Confirmed'),
+                      icon: Icon(Icons.money_rounded, color: colors.meterAmber, size: 20),
+                      label: Text(
+                        'COLLECTED IN CASH',
                         style: TextStyle(
-                          color: AppColors.meterAmber,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
+                          color: colors.textPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ),
                 ] else ...[
+                  // Already Confirmed Card
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.meterGreen.withOpacity(0.15),
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.meterGreen),
+                      border: Border.all(color: colors.meterGreen),
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.check_circle_rounded, color: AppColors.meterGreen, size: 36),
+                        Icon(Icons.check_circle_rounded, color: colors.meterGreen, size: 36),
                         const SizedBox(height: 8),
                         Text(
                           'Payment Recorded (${_selectedMethod?.toUpperCase()})',
-                          style: const TextStyle(
-                            color: AppColors.meterGreen,
+                          style: TextStyle(
+                            color: colors.meterGreen,
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                           ),
@@ -212,13 +215,13 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
     );
   }
 
-  Widget _buildMetricItem(String label, String value) {
+  Widget _buildMetricItem(String label, String value, MeterThemeColors colors) {
     return Column(
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.textMuted,
+          style: TextStyle(
+            color: colors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.0,
@@ -227,8 +230,8 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w800,
           ),
@@ -237,11 +240,11 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(MeterThemeColors colors) {
     return Container(
       height: 28,
       width: 1,
-      color: AppColors.meterDivider,
+      color: colors.divider,
     );
   }
 
@@ -259,23 +262,15 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
       paymentStatus: 'confirmed',
     );
 
-    if (!mounted) return;
-
     scaffoldMessenger.showSnackBar(
       SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.black),
-            const SizedBox(width: 8),
-            Text(message, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          ],
-        ),
+        content: Text(message),
         backgroundColor: AppColors.meterGreen,
         duration: const Duration(seconds: 2),
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 900), () {
+    Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) {
         manager.dismissSummaryAndReset();
         nav.popUntil((route) => route.isFirst);
@@ -284,24 +279,28 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
   }
 
   void _confirmDiscardOrExit(BuildContext context, TripManager manager) {
+    final colors = context.meterColors;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.meterSurface,
-        title: const Text('Exit Payment Screen?'),
-        content: const Text('This trip will remain saved in Trip History as pending payment.'),
+        backgroundColor: colors.surface,
+        title: const Text('Close Trip Summary?'),
+        content: const Text(
+          'If you close now without confirming, this trip will remain saved in History as Unpaid.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL'),
+            child: const Text('STAY'),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: colors.meterRed),
             onPressed: () {
               Navigator.pop(ctx);
               manager.dismissSummaryAndReset();
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            child: const Text('RETURN TO DASHBOARD'),
+            child: const Text('CLOSE & RETURN HOME'),
           ),
         ],
       ),

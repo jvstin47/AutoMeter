@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../services/payment_service.dart';
 import '../../services/supabase_service.dart';
+import '../../services/theme_provider.dart';
 import '../../services/trip_manager.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -86,10 +88,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _confirmResetDemo(BuildContext context, TripManager manager) {
+    final colors = context.meterColors;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.meterSurface,
+        backgroundColor: colors.surface,
         title: const Text('Reset Demo Data?'),
         content: const Text(
           'This will clear all prototype trips and reset fare rates and driver information to clean competition defaults.',
@@ -100,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: const Text('CANCEL'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.meterRed),
+            style: ElevatedButton.styleFrom(backgroundColor: colors.meterRed),
             onPressed: () async {
               final scaffoldMessenger = ScaffoldMessenger.of(context);
               Navigator.pop(ctx);
@@ -131,19 +134,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<TripManager>();
+    final themeProvider = context.watch<ThemeProvider>();
+    final colors = context.meterColors;
 
     return Form(
       key: _formKey,
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // Section: Theme & Display Mode
+          _buildSectionHeader('DISPLAY THEME & VISIBILITY', colors),
+          const SizedBox(height: 12),
+          _buildThemeSelector(context, themeProvider, colors),
+          const SizedBox(height: 24),
+
           // Section: Driver Profile
-          _buildSectionHeader('DRIVER & VEHICLE IDENTIFIER'),
+          _buildSectionHeader('DRIVER & VEHICLE IDENTIFIER', colors),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _nameController,
             label: 'Driver Name',
             icon: Icons.person_rounded,
+            colors: colors,
             validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter driver name' : null,
           ),
           const SizedBox(height: 12),
@@ -151,18 +163,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             controller: _vehicleController,
             label: 'Auto Registration Number',
             icon: Icons.electric_rickshaw_rounded,
+            colors: colors,
             validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter registration number' : null,
           ),
           const SizedBox(height: 24),
 
           // Section: UPI Payment
-          _buildSectionHeader('UPI PAYMENT CONFIGURATION'),
+          _buildSectionHeader('UPI PAYMENT CONFIGURATION', colors),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _upiController,
             label: 'Payee UPI ID / VPA',
             icon: Icons.qr_code_rounded,
             hint: 'e.g. driver@upi or 9876543210@paytm',
+            colors: colors,
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Enter UPI ID';
               if (!PaymentService.isValidUpiId(v)) return 'Invalid UPI format (e.g. name@bank or phone@bank)';
@@ -172,13 +186,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Section: Fare Tariff
-          _buildSectionHeader('FARE TARIFF CONFIGURATION'),
+          _buildSectionHeader('FARE TARIFF CONFIGURATION', colors),
           const SizedBox(height: 12),
           _buildTextField(
             controller: _baseFareController,
             label: 'Base Minimum Fare (₹)',
             icon: Icons.flag_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            colors: colors,
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Enter base fare';
               final val = double.tryParse(v);
@@ -193,6 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.map_rounded,
             hint: '0 for flat base + per-km; e.g. 1.5 or 2.0 for regional tariff',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            colors: colors,
             validator: (v) {
               if (v == null || v.trim().isEmpty) return 'Enter included distance (0 for flat)';
               final val = double.tryParse(v);
@@ -203,11 +219,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 12),
           _buildTextField(
             controller: _perKmController,
-            label: 'Rate per Kilometre (₹/km)',
-            icon: Icons.straighten_rounded,
+            label: 'Rate Per Kilometer (₹/km)',
+            icon: Icons.trending_up_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            colors: colors,
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter rate per km';
+              if (v == null || v.trim().isEmpty) return 'Enter per-km rate';
               final val = double.tryParse(v);
               if (val == null || val <= 0) return 'Rate must be greater than 0';
               return null;
@@ -216,55 +233,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 12),
           _buildTextField(
             controller: _waitingRateController,
-            label: 'Waiting Charge (₹/minute)',
+            label: 'Waiting Charge Per Minute (₹/min)',
             icon: Icons.hourglass_bottom_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            colors: colors,
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter waiting charge';
+              if (v == null || v.trim().isEmpty) return 'Enter waiting rate';
               final val = double.tryParse(v);
-              if (val == null || val < 0) return 'Waiting charge must be 0 or greater';
+              if (val == null || val < 0) return 'Rate cannot be negative';
               return null;
             },
           ),
           const SizedBox(height: 24),
 
-          // Section: Operating Mode
-          _buildSectionHeader('METER TRACKING MODE'),
+          // Section: Simulation & Presentation Mode
+          _buildSectionHeader('METER TRACKING MODE', colors),
           const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.meterCard,
+              color: colors.card,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.meterCardBorder),
+              border: Border.all(color: colors.cardBorder),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  activeThumbColor: AppColors.meterAmber,
-                  title: const Text('Demo Simulation Mode', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: const Text(
+                  title: const Text('Demo Simulation Mode', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  subtitle: Text(
                     'Simulates movement & waiting for competition presentation without driving',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: TextStyle(color: colors.textSecondary, fontSize: 12),
                   ),
                   value: manager.isDemoMode,
                   onChanged: (val) {
                     manager.setDemoMode(val);
                   },
                 ),
-                const Divider(color: AppColors.meterDivider),
+                Divider(color: colors.divider),
                 Row(
                   children: [
                     Icon(
                       manager.isDemoMode ? Icons.science_rounded : Icons.gps_fixed_rounded,
                       size: 16,
-                      color: manager.isDemoMode ? AppColors.meterAmber : AppColors.meterGreen,
+                      color: manager.isDemoMode ? colors.meterAmber : colors.meterGreen,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       manager.isDemoMode ? 'Active Provider: Synthetic GPS Engine' : 'Active Provider: Device Hardware GPS',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: colors.textSecondary),
                     ),
                   ],
                 ),
@@ -275,14 +293,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Section: Supabase Cloud Sync Status
-          _buildSectionHeader('CLOUD SYNCHRONIZATION (SUPABASE)'),
+          _buildSectionHeader('CLOUD SYNCHRONIZATION (SUPABASE)', colors),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.meterCard,
+              color: colors.card,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.meterCardBorder),
+              border: Border.all(color: colors.cardBorder),
             ),
             child: Column(
               children: [
@@ -291,12 +309,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (SupabaseService.isConfigured ? AppColors.meterGreen : AppColors.meterAmber).withOpacity(0.15),
+                        color: (SupabaseService.isConfigured ? colors.meterGreen : colors.meterAmber).withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         SupabaseService.isConfigured ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
-                        color: SupabaseService.isConfigured ? AppColors.meterGreen : AppColors.meterAmber,
+                        color: SupabaseService.isConfigured ? colors.meterGreen : colors.meterAmber,
                         size: 20,
                       ),
                     ),
@@ -314,7 +332,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             SupabaseService.isConfigured
                                 ? 'Completed trips sync to remote PostgreSQL automatically'
                                 : 'Trips stored locally on device; will sync when cloud endpoint configured',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            style: TextStyle(fontSize: 11, color: colors.textMuted),
                           ),
                         ],
                       ),
@@ -323,14 +341,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (manager.unsyncedTripCount > 0) ...[
                   const SizedBox(height: 12),
-                  const Divider(color: AppColors.meterDivider),
+                  Divider(color: colors.divider),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '${manager.unsyncedTripCount} trip(s) pending cloud sync',
-                        style: const TextStyle(color: AppColors.meterAmber, fontSize: 12, fontWeight: FontWeight.w600),
+                        style: TextStyle(color: colors.meterAmber, fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -344,7 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(synced > 0 ? '$synced trip(s) synced to cloud!' : 'Cloud endpoint unavailable, kept offline'),
-                                      backgroundColor: synced > 0 ? AppColors.meterGreen : AppColors.meterAmber,
+                                      backgroundColor: synced > 0 ? colors.meterGreen : colors.meterAmber,
                                     ),
                                   );
                                 }
@@ -377,13 +395,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             height: 50,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.meterRed, width: 1.2),
+                side: BorderSide(color: colors.meterRed, width: 1.2),
               ),
               onPressed: () => _confirmResetDemo(context, manager),
-              icon: const Icon(Icons.restore_rounded, color: AppColors.meterRed, size: 20),
-              label: const Text(
+              icon: Icon(Icons.restore_rounded, color: colors.meterRed, size: 20),
+              label: Text(
                 'RESET DEMO (CLEAN STATE)',
-                style: TextStyle(color: AppColors.meterRed, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colors.meterRed, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -393,11 +411,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, MeterThemeColors colors) {
     return Text(
       title,
-      style: const TextStyle(
-        color: AppColors.textSecondary,
+      style: TextStyle(
+        color: colors.textSecondary,
         fontSize: 11,
         fontWeight: FontWeight.w800,
         letterSpacing: 1.2,
@@ -405,10 +423,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildThemeSelector(BuildContext context, ThemeProvider themeProvider, MeterThemeColors colors) {
+    return Column(
+      children: AppThemeMode.values.map((mode) {
+        final isSelected = themeProvider.currentMode == mode;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: InkWell(
+            onTap: () => themeProvider.setThemeMode(mode),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: isSelected ? colors.meterAmber.withOpacity(0.12) : colors.card,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected ? colors.meterAmber : colors.cardBorder,
+                  width: isSelected ? 1.8 : 1.0,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? colors.meterAmber : colors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      mode.icon,
+                      size: 20,
+                      color: isSelected ? Colors.black : colors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              mode.label,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected ? colors.meterAmber : colors.textPrimary,
+                              ),
+                            ),
+                            if (mode == AppThemeMode.amoled) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: colors.meterAmber.withOpacity(0.5)),
+                                ),
+                                child: const Text(
+                                  'OLED 100%',
+                                  style: TextStyle(color: Color(0xFFFFB020), fontSize: 9, fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          mode.description,
+                          style: TextStyle(fontSize: 11, color: colors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Radio<AppThemeMode>(
+                    value: mode,
+                    groupValue: themeProvider.currentMode,
+                    activeColor: colors.meterAmber,
+                    onChanged: (val) {
+                      if (val != null) themeProvider.setThemeMode(val);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    required MeterThemeColors colors,
     String? hint,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
@@ -417,26 +526,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      style: TextStyle(color: colors.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-        prefixIcon: Icon(icon, color: AppColors.meterAmber, size: 20),
+        labelStyle: TextStyle(color: colors.textSecondary, fontSize: 13),
+        prefixIcon: Icon(icon, color: colors.meterAmber, size: 20),
         filled: true,
-        fillColor: AppColors.meterCard,
+        fillColor: colors.card,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.meterCardBorder),
+          borderSide: BorderSide(color: colors.cardBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.meterCardBorder),
+          borderSide: BorderSide(color: colors.cardBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.meterAmber, width: 1.5),
+          borderSide: BorderSide(color: colors.meterAmber, width: 1.5),
         ),
       ),
     );

@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 
 class DigitalMeterDisplay extends StatelessWidget {
@@ -24,10 +26,11 @@ class DigitalMeterDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fareColor = isPassengerMode ? AppColors.passengerDigit : AppColors.meterAmber;
-    final fareGlow = isPassengerMode ? Colors.transparent : AppColors.meterAmberGlow;
-    final bgBoxColor = isPassengerMode ? const Color(0xFF000000) : AppColors.meterSurface;
-    final borderColor = isPassengerMode ? const Color(0xFF333333) : AppColors.meterCardBorder;
+    final colors = context.meterColors;
+    final fareColor = isPassengerMode ? AppColors.passengerDigit : colors.meterAmber;
+    final fareGlow = isPassengerMode ? Colors.transparent : colors.meterAmberGlow;
+    final bgBoxColor = isPassengerMode ? const Color(0xFF000000) : colors.surface;
+    final borderColor = isPassengerMode ? const Color(0xFF333333) : colors.cardBorder;
 
     return Container(
       width: double.infinity,
@@ -50,10 +53,8 @@ class DigitalMeterDisplay extends StatelessWidget {
               ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Header Indicator: FARE
+          // FARE HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -63,18 +64,18 @@ class DigitalMeterDisplay extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isStationary ? AppColors.meterAmber : AppColors.meterGreen,
+                      color: isStationary ? colors.meterAmber : colors.meterGreen,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'FARE',
+                    isPassengerMode ? 'TOTAL FARE' : 'AUTO FARE METER',
                     style: TextStyle(
-                      color: isPassengerMode ? AppColors.passengerLabel : AppColors.textSecondary,
-                      fontSize: isPassengerMode ? 16 : 14,
+                      color: isPassengerMode ? AppColors.passengerLabel : colors.textSecondary,
+                      fontSize: isPassengerMode ? 14 : 12,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 2.0,
+                      letterSpacing: 1.5,
                     ),
                   ),
                 ],
@@ -82,34 +83,34 @@ class DigitalMeterDisplay extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isStationary ? AppColors.meterAmber : AppColors.meterGreen).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(6),
+                  color: (isStationary ? colors.meterAmber : colors.meterGreen).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: (isStationary ? AppColors.meterAmber : AppColors.meterGreen).withOpacity(0.4),
+                    color: (isStationary ? colors.meterAmber : colors.meterGreen).withOpacity(0.4),
                   ),
                 ),
                 child: Text(
-                  isStationary ? 'STATIONARY / WAITING' : 'VEHICLE MOVING',
+                  isStationary ? 'WAITING' : 'MOVING',
                   style: TextStyle(
-                    color: isStationary ? AppColors.meterAmber : AppColors.meterGreen,
-                    fontSize: isPassengerMode ? 13 : 11,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
+                    color: isStationary ? colors.meterAmber : colors.meterGreen,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
-          // HUGE FARE VALUE
+          // GIANT DIGITAL FARE DIGITS
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               Formatters.formatCurrency(totalFare),
               style: TextStyle(
                 color: fareColor,
-                fontSize: isPassengerMode ? 92 : 68,
+                fontSize: isPassengerMode ? 92 : 72,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -1.0,
                 fontFeatures: const [FontFeature.tabularFigures()],
@@ -122,10 +123,10 @@ class DigitalMeterDisplay extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             decoration: BoxDecoration(
-              color: isPassengerMode ? const Color(0xFF111111) : AppColors.meterCard,
+              color: isPassengerMode ? const Color(0xFF111111) : colors.card,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isPassengerMode ? const Color(0xFF262626) : AppColors.meterDivider,
+                color: isPassengerMode ? const Color(0xFF262626) : colors.divider,
               ),
             ),
             child: Row(
@@ -135,21 +136,24 @@ class DigitalMeterDisplay extends StatelessWidget {
                   label: 'DISTANCE',
                   value: '${distanceKm.toStringAsFixed(2)} km',
                   isPassenger: isPassengerMode,
-                  accentColor: AppColors.meterCyan,
+                  accentColor: colors.meterCyan,
+                  colors: colors,
                 ),
-                _buildDivider(isPassengerMode),
+                _buildDivider(isPassengerMode, colors),
                 _buildStatColumn(
                   label: 'WAITING',
                   value: Formatters.formatDuration(waitingSeconds),
                   isPassenger: isPassengerMode,
-                  accentColor: AppColors.meterAmber,
+                  accentColor: colors.meterAmber,
+                  colors: colors,
                 ),
-                _buildDivider(isPassengerMode),
+                _buildDivider(isPassengerMode, colors),
                 _buildStatColumn(
                   label: 'TRIP TIME',
                   value: Formatters.formatDuration(tripDurationSeconds),
                   isPassenger: isPassengerMode,
-                  accentColor: AppColors.textPrimary,
+                  accentColor: colors.textPrimary,
+                  colors: colors,
                 ),
               ],
             ),
@@ -160,12 +164,12 @@ class DigitalMeterDisplay extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.speed_rounded, size: 16, color: AppColors.textMuted),
+                Icon(Icons.speed_rounded, size: 16, color: colors.textMuted),
                 const SizedBox(width: 6),
                 Text(
                   'Speed: ${speedKmh.toStringAsFixed(1)} km/h',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
+                  style: TextStyle(
+                    color: colors.textMuted,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -183,13 +187,14 @@ class DigitalMeterDisplay extends StatelessWidget {
     required String value,
     required bool isPassenger,
     required Color accentColor,
+    required MeterThemeColors colors,
   }) {
     return Column(
       children: [
         Text(
           label,
           style: TextStyle(
-            color: isPassenger ? AppColors.passengerLabel : AppColors.textMuted,
+            color: isPassenger ? AppColors.passengerLabel : colors.textMuted,
             fontSize: isPassenger ? 12 : 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
@@ -209,11 +214,11 @@ class DigitalMeterDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider(bool isPassenger) {
+  Widget _buildDivider(bool isPassenger, MeterThemeColors colors) {
     return Container(
       height: 36,
       width: 1,
-      color: isPassenger ? const Color(0xFF333333) : AppColors.meterDivider,
+      color: isPassenger ? const Color(0xFF333333) : colors.divider,
     );
   }
 }
