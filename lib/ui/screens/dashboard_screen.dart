@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/theme_provider.dart';
 import '../../services/trip_manager.dart';
+import '../widgets/revenue_tile.dart';
+import '../widgets/weather_battery_pill.dart';
 import 'earnings_screen.dart';
 import 'live_meter_screen.dart';
 import 'passenger_mode_screen.dart';
@@ -125,15 +128,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.tv_rounded, color: AppColors.meterCyan),
-            tooltip: 'Passenger Display Mode',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const PassengerModeScreen()),
-              );
-            },
+          // Weather + Battery Device Health Pill
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            child: WeatherBatteryPill(),
           ),
           Consumer<ThemeProvider>(
             builder: (context, tp, _) => IconButton(
@@ -189,38 +187,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Ready Status Banner
+          // 1. SYSTEM STATUS BANNER (Pulsing Emerald Glow)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isTripActive
-                  ? colors.meterGreen.withOpacity(0.12)
-                  : colors.card,
-              borderRadius: BorderRadius.circular(12),
+              color: (isTripActive ? colors.meterAmber : const Color(0xFF00E676)).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isTripActive ? colors.meterGreen : colors.cardBorder,
+                color: (isTripActive ? colors.meterAmber : const Color(0xFF00E676)).withOpacity(0.4),
+                width: 1.2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: (isTripActive ? colors.meterAmber : const Color(0xFF00E676)).withOpacity(0.15),
+                  blurRadius: 18,
+                  spreadRadius: -2,
+                ),
+              ],
             ),
             child: Row(
               children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: isTripActive ? colors.meterGreen : colors.meterAmber,
-                    shape: BoxShape.circle,
-                  ),
+                Icon(
+                  isTripActive ? Icons.electric_rickshaw_rounded : Icons.verified_user_rounded,
+                  color: isTripActive ? colors.meterAmber : const Color(0xFF00E676),
+                  size: 24,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    isTripActive ? 'TRIP IN PROGRESS' : 'YOUR METER IS READY',
-                    style: TextStyle(
-                      color: isTripActive ? colors.meterGreen : colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                      fontSize: 13,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isTripActive ? "TRIP ACTIVE • TRACKING TELEMETRY" : "YOUR METER IS READY",
+                        style: TextStyle(
+                          color: isTripActive ? colors.meterAmber : const Color(0xFF00E676),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        "GPS LOCKED • Vehicle: ${manager.driverProfile.vehicleNumber}",
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Text(
@@ -234,8 +250,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
+
           if (manager.wasRestoredFromCrash) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
@@ -261,9 +278,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ],
+          const SizedBox(height: 20),
+
+          // 2. THE "POCKET" VIEW: INDUSTRIAL REVENUE & TRIP TILES
+          const Text(
+            "TODAY'S OVERVIEW",
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: RevenueTile(
+                  label: "TODAY'S REVENUE",
+                  value: Formatters.formatCurrency(manager.todayEarnings),
+                  isCurrency: true,
+                  icon: Icons.currency_rupee_rounded,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: RevenueTile(
+                  label: "COMPLETED TRIPS",
+                  value: '${manager.todayTripCount}',
+                  isCurrency: false,
+                  icon: Icons.check_circle_outline_rounded,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+
+          // 3. TARIFF TRANSPARENCY CARD
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colors.cardBorder, width: 1.2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "ACTIVE TARIFF CONFIGURATION",
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    Text(
+                      "Driver: ${manager.driverProfile.name}",
+                      style: TextStyle(
+                        color: colors.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Base: ${Formatters.formatCurrency(manager.fareConfig.baseFare)} (${manager.fareConfig.minDistanceKm} km) | Rate: ${Formatters.formatCurrency(manager.fareConfig.perKmRate)}/km | Wait: ${Formatters.formatCurrency(manager.fareConfig.waitingRatePerMin)}/m",
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
 
-          // Primary START TRIP (or RETURN TO TRIP) Action
+          // 4. THE BIG TACTILE START TRIP (OR RETURN TO TRIP) SLAB
           if (isTripActive) ...[
             Container(
               padding: const EdgeInsets.all(20),
@@ -298,6 +398,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text(
                     Formatters.formatCurrency(manager.currentBreakdown.totalFare),
                     style: const TextStyle(
+                      fontFamily: 'monospace',
                       color: AppColors.meterGreen,
                       fontSize: 44,
                       fontWeight: FontWeight.w900,
@@ -306,11 +407,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    height: 54,
+                    height: 56,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.meterGreen,
                         foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       onPressed: () {
                         Navigator.push(
@@ -321,7 +423,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: const Icon(Icons.arrow_forward_rounded),
                       label: const Text(
                         'RETURN TO ACTIVE METER',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 1),
                       ),
                     ),
                   ),
@@ -329,119 +431,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ] else ...[
-            // Giant Start Trip Button
-            SizedBox(
-              height: 100,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.meterAmber,
-                  foregroundColor: Colors.black,
-                  elevation: 6,
-                  shadowColor: AppColors.meterAmber.withOpacity(0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+            // Giant Tactile Start Trip Slab
+            Container(
+              width: double.infinity,
+              height: 74,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFB300), Color(0xFFFF8F00)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                onPressed: _isStarting
-                    ? null
-                    : () async {
-                        setState(() => _isStarting = true);
-                        try {
-                          await manager.startTrip();
-                          if (context.mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const LiveMeterScreen()),
-                            );
+                border: Border.all(color: const Color(0xFFFFD54F), width: 1.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFFB300).withOpacity(0.35),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: _isStarting
+                      ? null
+                      : () async {
+                          await HapticFeedback.heavyImpact();
+                          setState(() => _isStarting = true);
+                          try {
+                            await manager.startTrip();
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const LiveMeterScreen()),
+                              );
+                            }
+                          } finally {
+                            if (mounted) {
+                              setState(() => _isStarting = false);
+                            }
                           }
-                        } finally {
-                          if (mounted) {
-                            setState(() => _isStarting = false);
-                          }
-                        }
-                      },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                      child: _isStarting
-                          ? const SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.meterAmber),
-                            )
-                          : const Icon(Icons.play_arrow_rounded, color: AppColors.meterAmber, size: 28),
-                    ),
-                    const SizedBox(width: 16),
-                    const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'START TRIP',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
+                        },
+                  child: Center(
+                    child: _isStarting
+                        ? const SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.play_circle_fill_rounded, color: Colors.black, size: 28),
+                              SizedBox(width: 12),
+                              Text(
+                                "START TRIP",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          'Tap to begin live fare tracking',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ],
-          const SizedBox(height: 28),
-
-          // TODAY'S OVERVIEW METRICS
-          const Text(
-            "TODAY'S OVERVIEW",
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  title: "TODAY'S EARNINGS",
-                  value: Formatters.formatCurrency(manager.todayEarnings),
-                  icon: Icons.currency_rupee_rounded,
-                  color: AppColors.meterAmber,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'COMPLETED TRIPS',
-                  value: '${manager.todayTripCount}',
-                  icon: Icons.check_circle_outline_rounded,
-                  color: AppColors.meterGreen,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -449,7 +510,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title: 'DISTANCE COVERED',
                   value: '${manager.todayDistanceKm.toStringAsFixed(1)} km',
                   icon: Icons.route_rounded,
-                  color: AppColors.meterCyan,
+                  color: const Color(0xFF2979FF),
                 ),
               ),
               const SizedBox(width: 12),
@@ -458,60 +519,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title: 'WAITING TIME',
                   value: '${manager.todayWaitingMinutes} min',
                   icon: Icons.hourglass_bottom_rounded,
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 28),
-
-          // TARIFF SUMMARY CARD
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colors.card,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: colors.cardBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'TARIFF CONFIG',
-                      style: TextStyle(
-                        color: colors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        'Driver: ${manager.driverProfile.name}',
-                        style: TextStyle(
-                          color: colors.textSecondary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildTariffPill('BASE', Formatters.formatCurrency(manager.fareConfig.baseFare)),
-                    _buildTariffPill('PER KM', '${Formatters.formatCurrency(manager.fareConfig.perKmRate)}/km'),
-                    _buildTariffPill('WAITING', '${Formatters.formatCurrency(manager.fareConfig.waitingRatePerMin)}/min'),
-                  ],
-                ),
-              ],
-            ),
           ),
           const SizedBox(height: 20),
 

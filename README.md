@@ -6,7 +6,7 @@
 ### Next-Gen Smart Fare Meter with Dynamic UPI Payment for Auto-Rickshaws
 
 [![Latest Release](https://img.shields.io/github/v/release/jvstin47/AutoMeter?style=for-the-badge&color=FFB300&logo=github)](https://github.com/jvstin47/AutoMeter/releases/latest)
-[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.1-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.1.apk)
+[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.2-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.2.apk)
 [![Flutter](https://img.shields.io/badge/Flutter-3.29.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/jvstin47/AutoMeter/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
@@ -23,7 +23,7 @@ You can download the ready-to-install Android APK directly and test it on any An
 
 | Asset | Version | Direct Download Link | Description |
 | :--- | :---: | :--- | :--- |
-| 📦 **AutoMeter APK** | `v1.0.1` | [**Download AutoMeter-v1.0.1.apk**](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.1.apk) | Standalone release build with Comprehensive Automotive Dark Mode |
+| 📦 **AutoMeter APK** | `v1.0.2` | [**Download AutoMeter-v1.0.2.apk**](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.2.apk) | Standalone release build with Digital Industrial UI & Glanceable HUD |
 | 🏷️ **All Releases** | Any | [**Browse All Versions**](https://github.com/jvstin47/AutoMeter/releases) | Incremented version history (`AutoMeter-vX.Y.Z.apk`) |
 
 > 💡 **Installation Tip**: If downloading via phone browser, tap the downloaded `.apk` and allow *"Install from unknown sources"* if prompted by Android.

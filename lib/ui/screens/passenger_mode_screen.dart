@@ -147,15 +147,16 @@ class PassengerModeScreen extends StatelessWidget {
               ),
             ),
 
-            // Bottom Driver Indicator
+            // Bottom Trust Seal Watermark
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 14),
               child: Text(
-                'Driver: ${manager.driverProfile.name} • Pay via QR at trip completion',
+                'GPS Verified Meter • No Extra Charges • Driver: ${manager.driverProfile.name}',
                 style: const TextStyle(
-                  color: Color(0xFF555555),
+                  color: Color(0xFF666666),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
                 ),
               ),
             ),

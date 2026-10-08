@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/meter_theme_colors.dart';
@@ -62,12 +63,14 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
             ),
           ],
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+      body: SafeArea(
+        child: _isConfirmed
+            ? _buildSuccessState(manager)
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                 // Quick Trip Metrics Summary
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -249,8 +252,12 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
   }
 
   void _onConfirmPayment(TripManager manager, String method, String message) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final nav = Navigator.of(context);
+    // 1. Trigger the "Cha-ching" Triple Haptic Sequence
+    await HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HapticFeedback.heavyImpact();
 
     setState(() {
       _isConfirmed = true;
@@ -261,21 +268,111 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
       paymentMethod: method,
       paymentStatus: 'confirmed',
     );
+  }
 
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.meterGreen,
-        duration: const Duration(seconds: 2),
+  Widget _buildSuccessState(TripManager manager) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00E676).withOpacity(0.12),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF00E676).withOpacity(0.4),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00E676).withOpacity(0.3),
+                    blurRadius: 36,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF00E676),
+                size: 88,
+              ),
+            ),
+            const SizedBox(height: 28),
+            const Text(
+              "PAYMENT CONFIRMED",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Trip ${widget.trip.paymentReference ?? widget.trip.id.substring(0, 8)} settled via ${_selectedMethod?.toUpperCase() ?? 'UPI'}",
+              style: const TextStyle(
+                color: Color(0xFF8B949E),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              Formatters.formatCurrency(widget.trip.totalFare),
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                color: Color(0xFFFFB300),
+                fontSize: 42,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 40),
+            Container(
+              width: double.infinity,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFB300), Color(0xFFFF8F00)],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFFB300).withOpacity(0.35),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    manager.dismissSummaryAndReset();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  child: const Center(
+                    child: Text(
+                      "RETURN TO DASHBOARD",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) {
-        manager.dismissSummaryAndReset();
-        nav.popUntil((route) => route.isFirst);
-      }
-    });
   }
 
   void _confirmDiscardOrExit(BuildContext context, TripManager manager) {
