@@ -120,12 +120,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     final ex = tester.takeException();
-    await manager.stopTrip();
     expect(ex, isNull);
     await expectLater(
       find.byType(PassengerModeScreen),
       matchesGoldenFile('goldens/03_passenger_mode.png'),
     );
+    await manager.stopTrip();
   });
 
   testWidgets('Render and verify Payment QR Screen', (WidgetTester tester) async {
