@@ -7,7 +7,6 @@ import '../../core/utils/formatters.dart';
 import '../../services/theme_provider.dart';
 import '../../services/trip_manager.dart';
 import '../widgets/revenue_tile.dart';
-import '../widgets/weather_battery_pill.dart';
 import 'earnings_screen.dart';
 import 'live_meter_screen.dart';
 import 'passenger_mode_screen.dart';
@@ -135,11 +134,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          // Weather + Battery Device Health Pill
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
-            child: WeatherBatteryPill(),
-          ),
           Consumer<ThemeProvider>(
             builder: (context, tp, _) => IconButton(
               icon: Icon(tp.currentMode.icon, color: colors.meterAmber, size: 20),
@@ -149,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: () => tp.cycleTheme(),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
         ],
       ),
       body: pages[_currentIndex],
