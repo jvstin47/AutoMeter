@@ -30,15 +30,20 @@ class FareBreakdownCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'FARE BREAKDOWN',
-                style: TextStyle(
-                  color: colors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.5,
+              Expanded(
+                child: Text(
+                  'FARE BREAKDOWN',
+                  style: TextStyle(
+                    color: colors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -94,24 +99,29 @@ class FareBreakdownCard extends StatelessWidget {
           // Total Fare Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'TOTAL FARE',
-                style: TextStyle(
-                  color: colors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
+              Expanded(
+                child: Text(
+                  'TOTAL FARE',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
+                  ),
                 ),
               ),
-              Text(
-                Formatters.formatCurrency(breakdown.totalFare, symbol: currency),
-                style: TextStyle(
-                  color: colors.meterAmber,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
+              const SizedBox(width: 12),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  Formatters.formatCurrency(breakdown.totalFare, symbol: currency),
+                  style: TextStyle(
+                    color: colors.meterAmber,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ],
@@ -129,28 +139,32 @@ class FareBreakdownCard extends StatelessWidget {
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: colors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              detail,
-              style: TextStyle(
-                color: colors.textMuted,
-                fontSize: 12,
+              const SizedBox(height: 2),
+              Text(
+                detail,
+                style: TextStyle(
+                  color: colors.textMuted,
+                  fontSize: 12,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(width: 12),
         Text(
           Formatters.formatCurrency(amount, symbol: currency),
           style: TextStyle(

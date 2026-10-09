@@ -54,6 +54,7 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 8,
@@ -64,16 +65,20 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'LIVE METER',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                  fontSize: 15,
+              Flexible(
+                child: const Text(
+                  'LIVE METER',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    fontSize: 15,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 8),
-              if (manager.isDemoMode)
+              if (manager.isDemoMode) ...[
+                const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -90,13 +95,16 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                     ),
                   ),
                 ),
+              ],
             ],
           ),
           actions: [
             // Passenger Mode Shortcut
             IconButton(
-              icon: Icon(Icons.tv_rounded, color: colors.meterCyan),
+              icon: Icon(Icons.tv_rounded, color: colors.meterCyan, size: 22),
               tooltip: 'Passenger Display Mode',
+              padding: const EdgeInsets.all(6),
+              constraints: const BoxConstraints(),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -105,18 +113,26 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
               },
             ),
             // Jury Demo Sheet Trigger
-            if (manager.isDemoMode)
+            if (manager.isDemoMode) ...[
+              const SizedBox(width: 4),
               IconButton(
-                icon: Icon(Icons.tune_rounded, color: colors.meterAmber),
+                icon: Icon(Icons.tune_rounded, color: colors.meterAmber, size: 22),
                 tooltip: 'Jury Demo Controls',
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
                 onPressed: () => _openDemoControls(context),
               ),
+            ],
+            const SizedBox(width: 4),
             // Minimize to Dashboard
             IconButton(
-              icon: Icon(Icons.dashboard_customize_outlined, color: colors.textSecondary),
+              icon: Icon(Icons.dashboard_customize_outlined, color: colors.textSecondary, size: 22),
               tooltip: 'Dashboard View',
+              padding: const EdgeInsets.all(6),
+              constraints: const BoxConstraints(),
               onPressed: () => Navigator.pop(context),
             ),
+            const SizedBox(width: 8),
           ],
         ),
         body: SafeArea(
@@ -344,6 +360,7 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                           },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         _isStopping
                             ? const SizedBox(
@@ -352,13 +369,19 @@ class _LiveMeterScreenState extends State<LiveMeterScreen> {
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
                             : const Icon(Icons.stop_rounded, size: 28),
-                        const SizedBox(width: 12),
-                        Text(
-                          _isStopping ? 'CALCULATING FINAL FARE...' : 'STOP TRIP & GENERATE FARE',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.0,
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _isStopping ? 'CALCULATING FARE...' : 'STOP TRIP & GENERATE FARE',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                              ),
+                              maxLines: 1,
+                            ),
                           ),
                         ),
                       ],

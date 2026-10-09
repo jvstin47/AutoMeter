@@ -219,27 +219,34 @@ class _PaymentQrScreenState extends State<PaymentQrScreen> {
   }
 
   Widget _buildMetricItem(String label, String value, MeterThemeColors colors) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colors.textMuted,
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.0,
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: colors.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.0,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

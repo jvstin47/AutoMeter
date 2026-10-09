@@ -196,12 +196,16 @@ class EarningsScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        Formatters.formatCurrency(upiEarnings, symbol: manager.fareConfig.currency),
-                        style: TextStyle(
-                          color: colors.textPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          Formatters.formatCurrency(upiEarnings, symbol: manager.fareConfig.currency),
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -236,12 +240,16 @@ class EarningsScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        Formatters.formatCurrency(cashEarnings, symbol: manager.fareConfig.currency),
-                        style: TextStyle(
-                          color: colors.textPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          Formatters.formatCurrency(cashEarnings, symbol: manager.fareConfig.currency),
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -272,7 +280,7 @@ class EarningsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colors.cardBorder),
       ),
       child: Column(
@@ -298,14 +306,20 @@ class EarningsScreen extends StatelessWidget {
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -317,14 +331,19 @@ class EarningsScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colors.textSecondary,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: colors.textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+        const SizedBox(width: 8),
         Text(
           value,
           style: TextStyle(

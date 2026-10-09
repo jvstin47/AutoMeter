@@ -28,43 +28,48 @@ class PassengerModeScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF222222),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFF444444)),
-                        ),
-                        child: Text(
-                          manager.driverProfile.vehicleNumber,
-                          style: const TextStyle(
-                            color: AppColors.passengerWhite,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2,
+                  Expanded(
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF222222),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF444444)),
+                          ),
+                          child: Text(
+                            manager.driverProfile.vehicleNumber,
+                            style: const TextStyle(
+                              color: AppColors.passengerWhite,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: (isTripActive ? AppColors.meterGreen : AppColors.meterAmber).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          isTripActive ? 'METER ACTIVE' : 'METER STANDBY',
-                          style: TextStyle(
-                            color: isTripActive ? AppColors.meterGreen : AppColors.meterAmber,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (isTripActive ? AppColors.meterGreen : AppColors.meterAmber).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            isTripActive ? 'METER ACTIVE' : 'METER STANDBY',
+                            style: TextStyle(
+                              color: isTripActive ? AppColors.meterGreen : AppColors.meterAmber,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   // Discreet Exit Button for Driver
                   InkWell(
                     onTap: () => Navigator.pop(context),
@@ -118,7 +123,7 @@ class PassengerModeScreen extends StatelessWidget {
 
                       // Passenger Trust Banner
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: const Color(0xFF121212),
                           borderRadius: BorderRadius.circular(12),
@@ -128,14 +133,18 @@ class PassengerModeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(Icons.verified_user_outlined, size: 18, color: AppColors.meterGreen),
-                            const SizedBox(width: 10),
-                            Text(
-                              'GOVT. APPROVED DIGITAL TARIFF • UPI ENABLED',
-                              style: TextStyle(
-                                color: AppColors.passengerLabel.withOpacity(0.9),
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0,
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'GOVT. APPROVED DIGITAL TARIFF • UPI ENABLED',
+                                style: TextStyle(
+                                  color: AppColors.passengerLabel.withOpacity(0.9),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.8,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

@@ -38,27 +38,33 @@ class DemoControlsSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: colors.meterAmber.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: colors.meterAmber.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.tune_rounded, color: colors.meterAmber, size: 20),
                     ),
-                    child: Icon(Icons.tune_rounded, color: colors.meterAmber, size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'JURY DEMO CONTROLS',
-                    style: TextStyle(
-                      color: colors.meterAmber,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        'JURY DEMO CONTROLS',
+                        style: TextStyle(
+                          color: colors.meterAmber,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),

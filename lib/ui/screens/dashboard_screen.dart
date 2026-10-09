@@ -61,41 +61,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'AUTOMETER',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
+            const SizedBox(width: 8),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'AUTOMETER',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  manager.driverProfile.vehicleNumber,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMuted,
-                    fontWeight: FontWeight.w600,
+                  Text(
+                    manager.driverProfile.vehicleNumber,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
         actions: [
           // Demo Mode Badge / Toggle
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: InkWell(
               onTap: () {
                 manager.setDemoMode(!manager.isDemoMode);
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: manager.isDemoMode
                       ? AppColors.meterAmber.withOpacity(0.2)
@@ -114,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       size: 13,
                       color: manager.isDemoMode ? AppColors.meterAmber : AppColors.textSecondary,
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Text(
                       manager.isDemoMode ? 'DEMO' : 'GPS',
                       style: TextStyle(
@@ -130,16 +137,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           // Weather + Battery Device Health Pill
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
             child: WeatherBatteryPill(),
           ),
           Consumer<ThemeProvider>(
             builder: (context, tp, _) => IconButton(
-              icon: Icon(tp.currentMode.icon, color: colors.meterAmber),
+              icon: Icon(tp.currentMode.icon, color: colors.meterAmber, size: 20),
               tooltip: 'Switch Theme (${tp.currentMode.label})',
+              padding: const EdgeInsets.all(6),
+              constraints: const BoxConstraints(),
               onPressed: () => tp.cycleTheme(),
             ),
           ),
+          const SizedBox(width: 6),
         ],
       ),
       body: pages[_currentIndex],
@@ -226,6 +236,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           fontSize: 12,
                           letterSpacing: 1.2,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -235,10 +247,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   Formatters.formatDate(now),
                   style: TextStyle(
@@ -329,15 +344,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "ACTIVE TARIFF CONFIGURATION",
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
+                    Expanded(
+                      child: Text(
+                        "ACTIVE TARIFF CONFIGURATION",
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       "Driver: ${manager.driverProfile.name}",
                       style: TextStyle(
@@ -345,17 +365,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  "Base: ${Formatters.formatCurrency(manager.fareConfig.baseFare)} (${manager.fareConfig.minDistanceKm} km) | Rate: ${Formatters.formatCurrency(manager.fareConfig.perKmRate)}/km | Wait: ${Formatters.formatCurrency(manager.fareConfig.waitingRatePerMin)}/m",
-                  style: TextStyle(
-                    color: colors.textPrimary,
-                    fontFamily: 'monospace',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Base: ${Formatters.formatCurrency(manager.fareConfig.baseFare)} (${manager.fareConfig.minDistanceKm} km) | Rate: ${Formatters.formatCurrency(manager.fareConfig.perKmRate)}/km | Wait: ${Formatters.formatCurrency(manager.fareConfig.waitingRatePerMin)}/m",
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontFamily: 'monospace',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],

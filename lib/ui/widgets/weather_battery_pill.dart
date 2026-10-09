@@ -20,7 +20,7 @@ class WeatherBatteryPill extends StatelessWidget {
     final colors = context.meterColors;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: colors.card.withOpacity(0.6),
         borderRadius: BorderRadius.circular(20),

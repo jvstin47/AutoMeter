@@ -76,24 +76,31 @@ class TripHistoryScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule_rounded,
-                            size: 14,
-                            color: isToday ? colors.meterAmber : colors.textMuted,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${Formatters.formatDate(trip.startTime)} • ${Formatters.formatTime(trip.startTime)}',
-                            style: TextStyle(
-                              color: isToday ? colors.meterAmber : colors.textSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 14,
+                              color: isToday ? colors.meterAmber : colors.textMuted,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                '${Formatters.formatDate(trip.startTime)} • ${Formatters.formatTime(trip.startTime)}',
+                                style: TextStyle(
+                                  color: isToday ? colors.meterAmber : colors.textSecondary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         Formatters.formatCurrency(trip.totalFare, symbol: manager.fareConfig.currency),
                         style: TextStyle(
@@ -121,30 +128,34 @@ class TripHistoryScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          _buildPaymentBadge(trip.paymentMethod, trip.paymentStatus, colors),
-                          if (trip.isDemo) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: colors.surface,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: colors.cardBorder),
-                              ),
-                              child: Text(
-                                'DEMO',
-                                style: TextStyle(
-                                  color: colors.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            _buildPaymentBadge(trip.paymentMethod, trip.paymentStatus, colors),
+                            if (trip.isDemo)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: colors.surface,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: colors.cardBorder),
+                                ),
+                                child: Text(
+                                  'DEMO',
+                                  style: TextStyle(
+                                    color: colors.textMuted,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
-                        ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Icon(Icons.chevron_right_rounded, color: colors.textMuted, size: 20),
                     ],
                   ),

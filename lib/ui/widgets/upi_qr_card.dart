@@ -127,15 +127,14 @@ class UpiQrCard extends StatelessWidget {
           const SizedBox(height: 8),
 
           // Supported App Badges
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
               _buildAppTag('GPay', colors),
-              const SizedBox(width: 8),
               _buildAppTag('PhonePe', colors),
-              const SizedBox(width: 8),
               _buildAppTag('Paytm', colors),
-              const SizedBox(width: 8),
               _buildAppTag('BHIM', colors),
             ],
           ),

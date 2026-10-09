@@ -41,21 +41,27 @@ class RevenueTile extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: colors.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.0,
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: colors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (icon != null)
+              if (icon != null) ...[
+                const SizedBox(width: 4),
                 Icon(
                   icon,
                   size: 16,
                   color: isCurrency ? const Color(0xFFFFB300) : const Color(0xFF2979FF),
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 12),

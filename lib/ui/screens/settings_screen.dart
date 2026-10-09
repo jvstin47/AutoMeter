@@ -279,10 +279,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       size: 16,
                       color: manager.isDemoMode ? colors.meterAmber : colors.meterGreen,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      manager.isDemoMode ? 'Active Provider: Synthetic GPS Engine' : 'Active Provider: Device Hardware GPS',
-                      style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                    Expanded(
+                      child: Text(
+                        manager.isDemoMode ? 'Active Provider: Synthetic GPS Engine' : 'Active Provider: Device Hardware GPS',
+                        style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -346,10 +349,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '${manager.unsyncedTripCount} trip(s) pending cloud sync',
-                        style: TextStyle(color: colors.meterAmber, fontSize: 12, fontWeight: FontWeight.w600),
+                      Expanded(
+                        child: Text(
+                          '${manager.unsyncedTripCount} trip(s) pending cloud sync',
+                          style: TextStyle(color: colors.meterAmber, fontSize: 12, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

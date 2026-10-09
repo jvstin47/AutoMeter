@@ -402,6 +402,13 @@ class TripManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Pauses periodic timer and tracking stream for widget test stability
+  void pauseTimersForTesting() {
+    _tripTimer?.cancel();
+    _tripTimer = null;
+    _stopTrackingStream();
+  }
+
   // --- PAYMENT CONFIRMATION ---
 
   Future<void> confirmPayment({
