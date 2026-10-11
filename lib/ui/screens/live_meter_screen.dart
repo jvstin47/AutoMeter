@@ -9,6 +9,8 @@ import '../widgets/fare_breakdown_card.dart';
 import 'passenger_mode_screen.dart';
 import 'payment_qr_screen.dart';
 
+/// Active Meter Heads-Up Display (HUD) for the driver.
+/// Features 72pt monospaced tabular figures, dynamic motion status pulse, and tactile trip control slab.
 class LiveMeterScreen extends StatefulWidget {
   const LiveMeterScreen({super.key});
 

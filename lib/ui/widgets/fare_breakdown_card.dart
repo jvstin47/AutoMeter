@@ -3,6 +3,7 @@ import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/fare_engine.dart';
 
+/// Presentational card rendering an accordion-style itemized breakdown of base, distance, and waiting fares.
 class FareBreakdownCard extends StatelessWidget {
   final FareBreakdown breakdown;
   final String currency;

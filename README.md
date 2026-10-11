@@ -6,9 +6,9 @@
 ### Next-Gen Smart Fare Meter with Dynamic UPI Payment for Auto-Rickshaws
 
 [![Latest Release](https://img.shields.io/github/v/release/jvstin47/AutoMeter?style=for-the-badge&color=FFB300&logo=github)](https://github.com/jvstin47/AutoMeter/releases/latest)
-[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.2-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.2.apk)
+[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.4-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jvstin47/AutoMeter/releases/latest/download/AutoMeter-v1.0.4.apk)
 [![Flutter](https://img.shields.io/badge/Flutter-3.29.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/jvstin47/AutoMeter/actions)
+[![Tests](https://img.shields.io/badge/Tests-29%2F29%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/jvstin47/AutoMeter/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 *An Android-first digital proof-of-concept and firmware testbed for India's 3-wheeler auto-rickshaw ecosystem — combining real-time GPS telemetry, zero-auth driver workflow, passenger OLED HUD, and dynamic NPCI UPI QR code generation.*
@@ -147,8 +147,8 @@ flowchart TD
 
 ---
 
-## 📂 Project Structure
-
+## 📂 Clean Layered Architecture & Project Structure
+ 
 ```text
 AutoMeter/
 ├── .github/
@@ -161,19 +161,23 @@ AutoMeter/
 ├── docs/
 │   └── screenshots/             # In-app device screenshots for documentation
 ├── lib/
-│   ├── core/
-│   │   ├── constants/           # AppColors, AppDefaults, Typography
-│   │   └── utils/               # DistanceCalculator (Haversine), Formatters
-│   ├── models/                  # FareConfig, DriverProfile, TripModel, FareBreakdown
-│   ├── services/
-│   │   ├── demo_simulation_service.dart  # Multi-speed mock trip generator
-│   │   ├── fare_engine.dart              # Pure mathematical fare engine
-│   │   ├── location_service.dart         # Hardware GPS & stationary detector
-│   │   ├── payment_service.dart          # NPCI UPI URI generator & validator
-│   │   ├── storage_service.dart          # Offline-first state persistence
-│   │   ├── supabase_service.dart         # Cloud database sync client
-│   │   └── trip_manager.dart             # Central lifecycle state machine
-│   ├── ui/
+│   ├── core/                    # Core foundation & cross-cutting concerns
+│   │   ├── config/              # Environment variables (EnvConfig) & runtime AppConfig
+│   │   ├── constants/           # AppColors, AppDefaults, StorageKeys
+│   │   ├── errors/              # AppException hierarchy & UI Failures
+│   │   ├── network/             # Scalable IApiClient, BaseApiClient, ApiResult
+│   │   ├── theme/               # MeterTheme, MeterThemeColors extension
+│   │   └── utils/               # DistanceCalculator (Haversine), Formatters, Validators
+│   ├── data/                    # Data Layer
+│   │   ├── datasources/         # LocalStorageDataSource & RemoteDataSource (Supabase)
+│   │   ├── models/              # FareConfig, DriverProfile, TripModel, FareBreakdown
+│   │   └── repositories/        # TripRepository & SettingsRepository
+│   ├── domain/                  # Domain Business Logic
+│   │   └── services/            # FareEngine, LocationService, DemoSimulationService, PaymentService
+│   ├── providers/               # State Management Layer
+│   │   ├── trip_provider.dart   # TripProvider (trip lifecycle, GPS streams, analytics)
+│   │   └── theme_provider.dart  # ThemeProvider (AMOLED/Slate/Light mode & system overlays)
+│   ├── ui/                      # Presentation Layer
 │   │   ├── screens/
 │   │   │   ├── dashboard_screen.dart     # Meter home & start trip trigger
 │   │   │   ├── earnings_screen.dart      # Daily revenue & cash/UPI split
@@ -182,15 +186,33 @@ AutoMeter/
 │   │   │   ├── payment_qr_screen.dart    # Dynamic UPI QR & receipt
 │   │   │   ├── settings_screen.dart      # Tariff config & demo mode toggle
 │   │   │   └── trip_history_screen.dart  # Reverse-chronological ride logs
-│   │   └── widgets/                      # Metric cards, status badges, banners
-│   └── main.dart                # Provider injection & entrypoint
+│   │   └── widgets/                      # DigitalMeterDisplay, FareBreakdownCard, UpiQrCard, etc.
+│   └── main.dart                # Application entrypoint & dependency injection
 ├── scripts/
 │   └── build_release_apk.sh     # Local script to bump version & build AutoMeter-vX.Y.Z.apk
-├── test/                        # 10 comprehensive automated unit & integration tests
-├── pubspec.yaml                 # Dependencies & version declaration (v1.0.0+1)
+├── test/                        # 29 comprehensive automated unit, golden & integration tests
+├── pubspec.yaml                 # Dependencies & version declaration
 ├── supabase_schema.sql          # PostgreSQL schema & RLS policies for cloud sync
 └── LICENSE                      # MIT Open Source License
 ```
+
+---
+
+## 🔒 Environment Variable Separation & Configuration
+
+Environment variables are decoupled from source code and injected at build or run time via standard `--dart-define` parameters:
+
+```bash
+flutter run \
+  --dart-define=APP_ENV=production \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-anon-key \
+  --dart-define=API_BASE_URL=https://api.transport.gov.in/v1 \
+  --dart-define=API_TIMEOUT_MS=15000 \
+  --dart-define=ENABLE_DEBUG_LOGS=false
+```
+
+Configuration is parsed centrally through `EnvConfig` and `AppConfig` in `lib/core/config/`, with safe fallbacks ensuring the app boots seamlessly offline without crashing when cloud services are omitted.
 
 ---
 

@@ -1,9 +1,11 @@
 import 'dart:math';
 
+/// Mathematical utility for spherical distance computations and GPS spike filtering.
 class DistanceCalculator {
+  /// Mean Earth radius in kilometers (WGS-84 approximation).
   static const double earthRadiusKm = 6371.0;
 
-  /// Computes distance in kilometers between two GPS coordinates using Haversine formula
+  /// Computes great-circle distance in kilometers between two GPS coordinates using the Haversine formula.
   static double haversineKm(
     double startLat,
     double startLng,

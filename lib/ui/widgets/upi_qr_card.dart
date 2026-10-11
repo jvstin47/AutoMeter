@@ -5,6 +5,8 @@ import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/payment_service.dart';
 
+/// High-contrast dynamic NPCI UPI QR code widget.
+/// Renders a scannable optical card, deep links into UPI payment apps, and provides copy-to-clipboard fallbacks.
 class UpiQrCard extends StatelessWidget {
   final String upiId;
   final String payeeName;

@@ -1,155 +1,59 @@
-import 'dart:convert';
+import '../data/datasources/local_storage_datasource.dart';
+import '../data/models/driver_profile.dart';
+import '../data/models/fare_config.dart';
+import '../data/models/trip_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/driver_profile.dart';
-import '../models/fare_config.dart';
-import '../models/trip_model.dart';
 
+/// Legacy storage service facade wrapping [LocalStorageDataSource]
+/// to ensure backward compatibility across the codebase and test suites.
 class StorageService {
-  static const String _keyTrips = 'smart_meter_trips';
-  static const String _keyProfile = 'smart_meter_driver_profile';
-  static const String _keyConfig = 'smart_meter_fare_config';
-  static const String _keyDemoMode = 'smart_meter_demo_mode_enabled';
-  static const String _keyThemeMode = 'smart_meter_theme_mode';
-  static const String _keyActiveTrip = 'smart_meter_active_trip_state';
+  final LocalStorageDataSource _dataSource;
 
-  final SharedPreferences _prefs;
-
-  StorageService(this._prefs);
+  StorageService(SharedPreferences prefs)
+      : _dataSource = LocalStorageDataSource(prefs);
 
   static Future<StorageService> init() async {
+    final ds = await LocalStorageDataSource.init();
     final prefs = await SharedPreferences.getInstance();
     return StorageService(prefs);
   }
 
-  // Driver Profile
-  DriverProfile getDriverProfile() {
-    final jsonStr = _prefs.getString(_keyProfile);
-    if (jsonStr == null) return const DriverProfile();
-    try {
-      return DriverProfile.fromJson(jsonDecode(jsonStr));
-    } catch (_) {
-      return const DriverProfile();
-    }
-  }
+  ILocalStorageDataSource get dataSource => _dataSource;
 
-  Future<void> saveDriverProfile(DriverProfile profile) async {
-    await _prefs.setString(_keyProfile, jsonEncode(profile.toJson()));
-  }
+  DriverProfile getDriverProfile() => _dataSource.getDriverProfile();
+  Future<void> saveDriverProfile(DriverProfile profile) =>
+      _dataSource.saveDriverProfile(profile);
 
-  // Fare Config
-  FareConfig getFareConfig() {
-    final jsonStr = _prefs.getString(_keyConfig);
-    if (jsonStr == null) return const FareConfig();
-    try {
-      return FareConfig.fromJson(jsonDecode(jsonStr));
-    } catch (_) {
-      return const FareConfig();
-    }
-  }
+  FareConfig getFareConfig() => _dataSource.getFareConfig();
+  Future<void> saveFareConfig(FareConfig config) =>
+      _dataSource.saveFareConfig(config);
 
-  Future<void> saveFareConfig(FareConfig config) async {
-    await _prefs.setString(_keyConfig, jsonEncode(config.toJson()));
-  }
+  bool isDemoMode() => _dataSource.isDemoMode();
+  Future<void> setDemoMode(bool enabled) => _dataSource.setDemoMode(enabled);
 
-  // Demo Mode
-  bool isDemoMode() {
-    return _prefs.getBool(_keyDemoMode) ?? true; // Default to Demo Mode for instant testability
-  }
+  String getThemeMode() => _dataSource.getThemeMode();
+  Future<void> saveThemeMode(String mode) => _dataSource.saveThemeMode(mode);
 
-  Future<void> setDemoMode(bool enabled) async {
-    await _prefs.setBool(_keyDemoMode, enabled);
-  }
-
-  // Theme Mode
-  String getThemeMode() {
-    return _prefs.getString(_keyThemeMode) ?? 'amoled'; // Default to AMOLED Dark Mode
-  }
-
-  Future<void> saveThemeMode(String mode) async {
-    await _prefs.setString(_keyThemeMode, mode);
-  }
-
-  // Trips CRUD
-  List<TripModel> getTrips() {
-    final jsonStr = _prefs.getString(_keyTrips);
-    if (jsonStr == null) return [];
-    try {
-      final List decoded = jsonDecode(jsonStr);
-      return decoded.map((item) => TripModel.fromJson(item as Map<String, dynamic>)).toList()
-        ..sort((a, b) => b.startTime.compareTo(a.startTime)); // Reverse chronological
-    } catch (_) {
-      return [];
-    }
-  }
-
-  Future<void> saveTrip(TripModel trip) async {
-    final trips = getTrips();
-    final index = trips.indexWhere((t) => t.id == trip.id);
-    if (index >= 0) {
-      trips[index] = trip;
-    } else {
-      trips.insert(0, trip);
-    }
-    await _saveTripsList(trips);
-  }
-
+  List<TripModel> getTrips() => _dataSource.getTrips();
+  Future<void> saveTrip(TripModel trip) => _dataSource.saveTrip(trip);
   Future<void> updateTripPayment({
     required String tripId,
     required String paymentMethod,
     required String paymentStatus,
     String? paymentReference,
-  }) async {
-    final trips = getTrips();
-    final index = trips.indexWhere((t) => t.id == tripId);
-    if (index >= 0) {
-      trips[index] = trips[index].copyWith(
+  }) =>
+      _dataSource.updateTripPayment(
+        tripId: tripId,
         paymentMethod: paymentMethod,
         paymentStatus: paymentStatus,
         paymentReference: paymentReference,
       );
-      await _saveTripsList(trips);
-    }
-  }
 
-  Future<void> markTripSynced(String tripId) async {
-    final trips = getTrips();
-    final index = trips.indexWhere((t) => t.id == tripId);
-    if (index >= 0) {
-      trips[index] = trips[index].copyWith(isSynced: true);
-      await _saveTripsList(trips);
-    }
-  }
+  Future<void> markTripSynced(String tripId) => _dataSource.markTripSynced(tripId);
 
-  Future<void> _saveTripsList(List<TripModel> trips) async {
-    final encoded = jsonEncode(trips.map((t) => t.toJson()).toList());
-    await _prefs.setString(_keyTrips, encoded);
-  }
+  Future<void> saveActiveTripState(Map<String, dynamic>? state) =>
+      _dataSource.saveActiveTripState(state);
+  Map<String, dynamic>? getActiveTripState() => _dataSource.getActiveTripState();
 
-  // Crash recovery / Active trip state
-  Future<void> saveActiveTripState(Map<String, dynamic>? state) async {
-    if (state == null) {
-      await _prefs.remove(_keyActiveTrip);
-    } else {
-      await _prefs.setString(_keyActiveTrip, jsonEncode(state));
-    }
-  }
-
-  Map<String, dynamic>? getActiveTripState() {
-    final jsonStr = _prefs.getString(_keyActiveTrip);
-    if (jsonStr == null) return null;
-    try {
-      return jsonDecode(jsonStr) as Map<String, dynamic>;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  // Reset Demo Data (Clears prototype trips & restores defaults)
-  Future<void> resetDemoData() async {
-    await _prefs.remove(_keyTrips);
-    await _prefs.remove(_keyActiveTrip);
-    await saveDriverProfile(const DriverProfile());
-    await saveFareConfig(const FareConfig());
-    await setDemoMode(true);
-  }
+  Future<void> resetDemoData() => _dataSource.resetDemoData();
 }

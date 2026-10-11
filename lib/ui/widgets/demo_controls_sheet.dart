@@ -4,6 +4,8 @@ import '../../core/theme/meter_theme_colors.dart';
 import '../../services/demo_simulation_service.dart';
 import '../../services/trip_manager.dart';
 
+/// Frosted modal bottom sheet providing real-time testing controls (speed multiplier, traffic signal toggle)
+/// for zero-risk jury demonstration and evaluation.
 class DemoControlsSheet extends StatelessWidget {
   const DemoControlsSheet({super.key});
 

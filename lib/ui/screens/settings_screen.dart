@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/meter_theme_colors.dart';
-import '../../services/payment_service.dart';
+import '../../core/utils/validators.dart';
 import '../../services/supabase_service.dart';
 import '../../services/theme_provider.dart';
 import '../../services/trip_manager.dart';
 
+/// Driver identification, regional tariff adjustments, theme switcher, and demo mode preferences.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -60,21 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _saveSettings(TripManager manager) async {
     if (_formKey.currentState?.validate() ?? false) {
-      final newProfile = manager.driverProfile.copyWith(
-        name: _nameController.text.trim(),
-        upiId: _upiController.text.trim(),
-        vehicleNumber: _vehicleController.text.trim(),
-      );
-
-      final newConfig = manager.fareConfig.copyWith(
+      await manager.saveSettings(
+        name: _nameController.text,
+        upiId: _upiController.text,
+        vehicleNumber: _vehicleController.text,
         baseFare: double.tryParse(_baseFareController.text) ?? manager.fareConfig.baseFare,
         perKmRate: double.tryParse(_perKmController.text) ?? manager.fareConfig.perKmRate,
         waitingRatePerMin: double.tryParse(_waitingRateController.text) ?? manager.fareConfig.waitingRatePerMin,
         minDistanceKm: double.tryParse(_minDistanceKmController.text) ?? manager.fareConfig.minDistanceKm,
       );
-
-      await manager.updateDriverProfile(newProfile);
-      await manager.updateFareConfig(newConfig);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -156,7 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: 'Driver Name',
             icon: Icons.person_rounded,
             colors: colors,
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter driver name' : null,
+            validator: Validators.validateDriverName,
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -164,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: 'Auto Registration Number',
             icon: Icons.electric_rickshaw_rounded,
             colors: colors,
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter registration number' : null,
+            validator: Validators.validateVehicleNumber,
           ),
           const SizedBox(height: 24),
 
@@ -177,11 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.qr_code_rounded,
             hint: 'e.g. driver@upi or 9876543210@paytm',
             colors: colors,
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter UPI ID';
-              if (!PaymentService.isValidUpiId(v)) return 'Invalid UPI format (e.g. name@bank or phone@bank)';
-              return null;
-            },
+            validator: Validators.validateUpiId,
           ),
           const SizedBox(height: 24),
 
@@ -194,12 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.flag_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             colors: colors,
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter base fare';
-              final val = double.tryParse(v);
-              if (val == null || val <= 0) return 'Base fare must be greater than 0';
-              return null;
-            },
+            validator: (v) => Validators.validatePositiveAmount(v, fieldName: 'Base fare'),
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -209,12 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             hint: '0 for flat base + per-km; e.g. 1.5 or 2.0 for regional tariff',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             colors: colors,
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter included distance (0 for flat)';
-              final val = double.tryParse(v);
-              if (val == null || val < 0) return 'Distance must be 0 or greater';
-              return null;
-            },
+            validator: (v) => Validators.validatePositiveAmount(v, fieldName: 'Included distance'),
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -223,12 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.trending_up_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             colors: colors,
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter per-km rate';
-              final val = double.tryParse(v);
-              if (val == null || val <= 0) return 'Rate must be greater than 0';
-              return null;
-            },
+            validator: (v) => Validators.validatePositiveAmount(v, fieldName: 'Per-km rate'),
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -237,12 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.hourglass_bottom_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             colors: colors,
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Enter waiting rate';
-              final val = double.tryParse(v);
-              if (val == null || val < 0) return 'Rate cannot be negative';
-              return null;
-            },
+            validator: (v) => Validators.validatePositiveAmount(v, fieldName: 'Waiting rate'),
           ),
           const SizedBox(height: 24),
 

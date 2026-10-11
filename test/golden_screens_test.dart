@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_fare_meter/core/theme/meter_theme.dart';
-import 'package:smart_fare_meter/models/fare_config.dart';
 import 'package:smart_fare_meter/models/trip_model.dart';
 import 'package:smart_fare_meter/services/storage_service.dart';
 import 'package:smart_fare_meter/services/theme_provider.dart';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/trip_model.dart';
@@ -9,6 +8,7 @@ import '../../services/trip_manager.dart';
 import '../widgets/fare_breakdown_card.dart';
 import 'payment_qr_screen.dart';
 
+/// Audit log and trip history list displaying completed fares, payment methods, and timestamps.
 class TripHistoryScreen extends StatelessWidget {
   const TripHistoryScreen({super.key});
 

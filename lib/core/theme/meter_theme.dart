@@ -3,6 +3,7 @@ import '../constants/app_colors.dart';
 import 'meter_theme_colors.dart';
 import '../../services/theme_provider.dart';
 
+/// Factory constructing Material 3 [ThemeData] tuned for cabin readability, OLED efficiency, and glanceability.
 class MeterTheme {
   static ThemeData get amoledTheme => _buildTheme(MeterThemeColors.amoled, isDark: true);
   static ThemeData get slateTheme => _buildTheme(MeterThemeColors.slate, isDark: true);

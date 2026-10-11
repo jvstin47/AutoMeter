@@ -1,3 +1,4 @@
+/// Default baseline configuration values for driver identification, telemetry thresholds, and tariffs.
 class AppDefaults {
   // Driver Defaults
   static const String driverName = 'Ramesh Kumar';

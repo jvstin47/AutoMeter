@@ -1,62 +1,53 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/trip_model.dart';
+import '../core/config/env_config.dart';
+import '../data/datasources/remote_datasource.dart';
+import '../data/models/trip_model.dart';
+import '../core/config/app_config.dart';
 
+/// Service facade for Supabase database operations.
+/// Leverages [EnvConfig] and [SupabaseRemoteDataSource].
 class SupabaseService {
-  // Default prototype placeholders or configurable credentials
-  static String? supabaseUrl;
-  static String? supabaseAnonKey;
-  static bool _isInitialized = false;
+  static SupabaseRemoteDataSource? _remoteDataSource;
 
   static bool get isConfigured =>
-      supabaseUrl != null &&
-      supabaseUrl!.isNotEmpty &&
-      supabaseAnonKey != null &&
-      supabaseAnonKey!.isNotEmpty;
+      _remoteDataSource != null && _remoteDataSource!.isAvailable;
 
   static Future<void> initialize({String? url, String? anonKey}) async {
-    if (url != null && anonKey != null && url.isNotEmpty && anonKey.isNotEmpty) {
-      supabaseUrl = url;
-      supabaseAnonKey = anonKey;
-      try {
-        await Supabase.initialize(
-          url: url,
-          anonKey: anonKey,
-        );
-        _isInitialized = true;
-      } catch (e) {
-        debugPrint('Supabase init error: $e');
-        _isInitialized = false;
-      }
+    final effectiveUrl = url ?? EnvConfig.supabaseUrl;
+    final effectiveKey = anonKey ?? EnvConfig.supabaseAnonKey;
+
+    if (effectiveUrl.isNotEmpty && effectiveKey.isNotEmpty) {
+      final config = AppConfig(
+        environment: EnvConfig.environment,
+        supabaseUrl: effectiveUrl,
+        supabaseAnonKey: effectiveKey,
+        apiBaseUrl: EnvConfig.apiBaseUrl,
+        apiTimeout: Duration(milliseconds: EnvConfig.apiTimeoutMs),
+        enableDebugLogs: EnvConfig.enableDebugLogs,
+      );
+      _remoteDataSource = SupabaseRemoteDataSource(config: config);
+      await _remoteDataSource!.initialize(url: effectiveUrl, anonKey: effectiveKey);
     }
   }
 
   /// Syncs a single trip to Supabase
   static Future<bool> syncTrip(TripModel trip) async {
-    if (!_isInitialized) return false;
-    try {
-      final client = Supabase.instance.client;
-      await client.from('trips').upsert(trip.toSupabaseMap());
-      return true;
-    } catch (e) {
-      debugPrint('Error syncing trip to Supabase: $e');
+    if (_remoteDataSource == null || !_remoteDataSource!.isAvailable) {
       return false;
     }
+    final result = await _remoteDataSource!.syncTrip(trip);
+    return result.isSuccess;
   }
 
   /// Syncs all un-synced trips
-  static Future<int> syncAllUnsynced(List<TripModel> trips, Function(String id) onSynced) async {
-    if (!_isInitialized) return 0;
-    int count = 0;
-    for (final trip in trips) {
-      if (!trip.isSynced) {
-        final success = await syncTrip(trip);
-        if (success) {
-          onSynced(trip.id);
-          count++;
-        }
-      }
+  static Future<int> syncAllUnsynced(
+    List<TripModel> trips,
+    void Function(String id) onSynced,
+  ) async {
+    if (_remoteDataSource == null || !_remoteDataSource!.isAvailable) {
+      return 0;
     }
-    return count;
+    final result = await _remoteDataSource!.syncAllUnsynced(trips, onSynced);
+    return result.getOrElse(() => 0);
   }
 }

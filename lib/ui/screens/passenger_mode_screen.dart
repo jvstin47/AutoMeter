@@ -4,6 +4,8 @@ import '../../core/constants/app_colors.dart';
 import '../../services/trip_manager.dart';
 import '../widgets/digital_meter_display.dart';
 
+/// AMOLED Pitch-Black high-contrast Passenger Transparency Mode.
+/// Features massive 92pt figures, trust watermark, and zero cabin glare.
 class PassengerModeScreen extends StatelessWidget {
   const PassengerModeScreen({super.key});
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Theme extension providing specialized glanceable automotive and high-contrast color tokens.
 @immutable
 class MeterThemeColors extends ThemeExtension<MeterThemeColors> {
   final Color bg;

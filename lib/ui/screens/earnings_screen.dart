@@ -4,6 +4,7 @@ import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../services/trip_manager.dart';
 
+/// Financial analytics and daily revenue breakdown tracking cash vs UPI collections.
 class EarningsScreen extends StatelessWidget {
   const EarningsScreen({super.key});
 
@@ -13,21 +14,11 @@ class EarningsScreen extends StatelessWidget {
     final colors = context.meterColors;
     final trips = manager.trips;
 
-    final totalEarnings = trips
-        .where((t) => t.paymentStatus == 'confirmed')
-        .fold(0.0, (sum, t) => sum + t.totalFare);
-
-    final upiEarnings = trips
-        .where((t) => t.paymentStatus == 'confirmed' && t.paymentMethod == 'upi')
-        .fold(0.0, (sum, t) => sum + t.totalFare);
-
-    final cashEarnings = trips
-        .where((t) => t.paymentStatus == 'confirmed' && t.paymentMethod == 'cash')
-        .fold(0.0, (sum, t) => sum + t.totalFare);
-
-    final totalDistance = trips.fold(0.0, (sum, t) => sum + t.distanceKm);
-    final totalWaitingSeconds = trips.fold(0, (sum, t) => sum + t.waitingDurationSeconds);
-    final totalWaitingMin = (totalWaitingSeconds / 60).ceil();
+    final totalEarnings = manager.totalEarnings;
+    final upiEarnings = manager.upiEarnings;
+    final cashEarnings = manager.cashEarnings;
+    final totalDistance = manager.totalDistanceKm;
+    final totalWaitingMin = manager.totalWaitingMinutes;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),

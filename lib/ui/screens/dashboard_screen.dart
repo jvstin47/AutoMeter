@@ -13,6 +13,8 @@ import 'passenger_mode_screen.dart';
 import 'settings_screen.dart';
 import 'trip_history_screen.dart';
 
+/// Primary Mission Control and Driver Launchpad.
+/// Provides zero-auth startup, glanceable revenue tiles, GPS/Demo status, and quick trip initiation.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 

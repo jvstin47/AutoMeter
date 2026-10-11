@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Canonical color palette definitions for the AutoMeter design system.
 class AppColors {
   // Meter Base Theme (High contrast industrial automotive)
   static const Color meterBlack = Color(0xFF0A0C10);

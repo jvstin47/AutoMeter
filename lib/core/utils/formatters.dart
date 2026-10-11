@@ -1,6 +1,8 @@
 import 'package:intl/intl.dart';
 
+/// Formatting utility for localized currency, distances, timestamps, and durations.
 class Formatters {
+  /// Formats numeric amounts into Indian Rupee or specified currency currency format (e.g. ₹142.50).
   static String formatCurrency(double amount, {String symbol = '₹'}) {
     final formatter = NumberFormat.currency(
       symbol: symbol,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/theme/meter_theme_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/trip_model.dart';
@@ -10,6 +9,7 @@ import '../../services/trip_manager.dart';
 import '../widgets/fare_breakdown_card.dart';
 import '../widgets/upi_qr_card.dart';
 
+/// Post-trip settlement terminal featuring dynamic UPI QR generation, cash receipts, and payment verification.
 class PaymentQrScreen extends StatefulWidget {
   final TripModel trip;
 
